@@ -24,14 +24,26 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+            mainwindow.cpp \
+            src/core/h264_decoder.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+            src/core/h264_decoder.h \
+            src/core/h264_frame.h
 
 FORMS    += mainwindow.ui
 
+win32{
+
 INCLUDEPATH += $$PWD/include
+
 LIBS += -L$$PWD/lib
 LIBS += -lavcodec \
-        -lavformat
+        -lavformat \
+        -lavdevice \
+        -lavfilter \
+        -lavutil \
+        -lswresample \
+        -lswscale
 
+}
