@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,17 +25,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
             mainwindow.cpp \
-            src/core/h264_decoder.cpp
+            src/core/h264_decoder.cpp \
+            src/core/camera_client.cpp\
+            src/opengl/gl_widget.cpp
 
 HEADERS  += mainwindow.h \
             src/core/h264_decoder.h \
-            src/core/h264_frame.h
+            src/core/h264_frame.h   \
+            src/core/camera_client.h \
+            src/opengl/gl_widget.h \
+    src/opengl/gl_utils.h
 
 FORMS    += mainwindow.ui
 
 win32{
 
 INCLUDEPATH += $$PWD/include
+INCLUDEPATH +=$$PWD/src/core
 
 LIBS += -L$$PWD/lib
 LIBS += -lavcodec \

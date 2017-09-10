@@ -2,9 +2,9 @@
 #define H264_FRAME_H
 
 
-typedef struct H264Frame{
+typedef struct H264Frame {
     unsigned int length;
-    unsigned char* dataBuffer;
+    unsigned char *dataBuffer;
 };
 typedef struct H264Frame_YUV {
 
