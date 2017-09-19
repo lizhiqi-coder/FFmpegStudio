@@ -51,17 +51,17 @@ private:
     GLint handle_texture;
 
 private:
-    const static float posCoord[] = {
+     const float posCoord[8] = {
             -1, 1,
             1, 1,
             -1, -1,
             1, -1
     };
-    const static float texCoord[] = {
+    const float texCoord[8] = {
             0, 1,
             1, 1,
             0, 0,
-            1, -0
+            1, 0
     };
 };
 

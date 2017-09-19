@@ -104,4 +104,8 @@ GLint GLWidget::compileShader(GLenum type, const char *shader_code) {
 
 }
 
+GLWidget::~GLWidget() {
+    cleanup();
+}
+
 
