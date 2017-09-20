@@ -23,6 +23,43 @@ void GLWidget::initializeGL() {
     handle_tex_coord = glGetAttribLocation(m_program, KEY_ATTR_TEXCOORD);
     handle_texture = glGetUniformLocation(m_program, KEY_UNI_TEXTURE);
 
+    QFile vertex_shader_file(QString(":/res/shader/vertex_shader.glsl"));
+    QFile fragment_shader_file(QString(":/res/shader/fragment_shader.glsl"));
+
+    vertex_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
+    fragment_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream vertex_in(&vertex_shader_file);
+    QTextStream fragment_in(&fragment_shader_file);
+
+    initProgram(vertex_in.readAll().toLatin1(), fragment_in.readAll().toLatin1());
+
+    initTexture(NULL, NULL);
+
+}
+
+GLuint GLWidget::initTexture(int width, int height) {
+
+    glActiveTexture(GL_TEXTURE_2D);
+    glGenTextures(1, m_texture);
+    if (*m_texture <= 0) {
+        printf("create texture failed");
+        return 0;
+    }
+    glBindTexture(GL_TEXTURE_2D, *m_texture);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+    auto qimage = QImage(QString(":/res/image/test.jpg"));
+
+    uchar *bitmap = qimage.bits();
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                 qimage.width(), qimage.width(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap);
+
+    return 0;
 }
 
 
@@ -33,14 +70,14 @@ void GLWidget::cleanup() {
     }
 }
 
-void GLWidget::paintEvent(QPaintEvent *e) {
+void GLWidget::paintGL() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glUseProgram(m_program);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_texture_id);
+    glBindTexture(GL_TEXTURE_2D, *m_texture);
     glUniform1i(handle_texture, 0);
 
 
@@ -112,6 +149,8 @@ GLint GLWidget::compileShader(GLenum type, const char *shader_code) {
 GLWidget::~GLWidget() {
     cleanup();
 }
+
+
 
 
 

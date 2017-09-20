@@ -28,13 +28,15 @@ private:
     GLint initProgram(const char *vertex_shader_code,
                       const char *fragment_shader_code);
 
+    GLuint initTexture(int width, int height);
+
     GLint compileShader(GLenum type, const char *shader_code);
 
 
 protected:
     void initializeGL() override;
 
-    void paintEvent(QPaintEvent *e) override;
+    void paintGL() override ;
 
     void resizeGL(int w, int h) override;
 
@@ -44,7 +46,7 @@ public slots:
 
 private:
     GLint m_program;
-    GLint m_texture_id;
+    GLuint * m_texture;
 
     GLint handle_position;
     GLint handle_tex_coord;

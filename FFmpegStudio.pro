@@ -39,6 +39,8 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     res/ui/openglwindow.ui
 
+RESOURCES += application.qrc \
+
 win32{
 
 INCLUDEPATH += $$PWD/include
