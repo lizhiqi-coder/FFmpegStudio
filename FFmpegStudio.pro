@@ -27,21 +27,23 @@ SOURCES += main.cpp\
             mainwindow.cpp \
             src/core/h264_decoder.cpp \
             src/core/camera_client.cpp\
-            src/opengl/gl_widget.cpp
+            src/opengl/gl_widget.cpp\
 
 HEADERS  += mainwindow.h \
             src/core/h264_decoder.h \
             src/core/h264_frame.h   \
             src/core/camera_client.h \
             src/opengl/gl_widget.h \
-    src/opengl/gl_utils.h
 
-FORMS    += mainwindow.ui
+
+FORMS    += mainwindow.ui \
+    res/ui/openglwindow.ui
 
 win32{
 
 INCLUDEPATH += $$PWD/include
 INCLUDEPATH +=$$PWD/src/core
+INCLUDEPATH +=$$PWD/src/opengl
 
 LIBS += -L$$PWD/lib
 LIBS += -lavcodec \

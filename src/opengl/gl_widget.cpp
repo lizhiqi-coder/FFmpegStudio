@@ -4,6 +4,11 @@
 
 #include "gl_widget.h"
 
+GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
+
+}
+
+
 void GLWidget::initializeGL() {
 
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLWidget::cleanup);
@@ -107,5 +112,6 @@ GLint GLWidget::compileShader(GLenum type, const char *shader_code) {
 GLWidget::~GLWidget() {
     cleanup();
 }
+
 
 

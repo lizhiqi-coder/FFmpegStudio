@@ -6,34 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>682</width>
-    <height>445</height>
+    <width>457</width>
+    <height>278</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>OpenGL Preview</string>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <widget class="QScrollBar" name="horizontalScrollBar">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>90</y>
-      <width>160</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>682</width>
+     <width>457</width>
      <height>23</height>
     </rect>
    </property>
