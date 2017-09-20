@@ -17,11 +17,7 @@ void GLWidget::initializeGL() {
 
     glClearColor(0, 0, 0, 1);
     glEnable(GL_TEXTURE_2D);
-    m_program = initProgram("vertex shader", "fragment shader");
 
-    handle_position = glGetAttribLocation(m_program, KEY_ATTR_POSITION);
-    handle_tex_coord = glGetAttribLocation(m_program, KEY_ATTR_TEXCOORD);
-    handle_texture = glGetUniformLocation(m_program, KEY_UNI_TEXTURE);
 
     QFile vertex_shader_file(QString(":/res/shader/vertex_shader.glsl"));
     QFile fragment_shader_file(QString(":/res/shader/fragment_shader.glsl"));
@@ -31,35 +27,46 @@ void GLWidget::initializeGL() {
     QTextStream vertex_in(&vertex_shader_file);
     QTextStream fragment_in(&fragment_shader_file);
 
-    initProgram(vertex_in.readAll().toLatin1(), fragment_in.readAll().toLatin1());
+    m_program = initProgram(vertex_in.readAll().toLatin1(), fragment_in.readAll().toLatin1());
 
-    initTexture(NULL, NULL);
+    m_texture = initTexture(NULL, NULL);
+
+    handle_position = glGetAttribLocation(m_program, KEY_ATTR_POSITION);
+    handle_tex_coord = glGetAttribLocation(m_program, KEY_ATTR_TEXCOORD);
+    handle_texture = glGetUniformLocation(m_program, KEY_UNI_TEXTURE);
 
 }
 
 GLuint GLWidget::initTexture(int width, int height) {
 
     glActiveTexture(GL_TEXTURE_2D);
-    glGenTextures(1, m_texture);
-    if (*m_texture <= 0) {
+    GLuint *textures = new GLuint[1];
+    glGenTextures(1, textures);
+    if (*textures <= 0) {
         printf("create texture failed");
         return 0;
     }
-    glBindTexture(GL_TEXTURE_2D, *m_texture);
+    glBindTexture(GL_TEXTURE_2D, *textures);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
-    auto qimage = QImage(QString(":/res/image/test.jpg"));
+    QImage qimage;
+    if (!qimage.load(":/res/image/test.jpg")) {
+        qWarning("load image failed!");
+        QImage dummy(128, 128, QImage::Format_RGB32);
+        dummy.fill(Qt::red);
+        qimage = dummy;
+    }
 
-    uchar *bitmap = qimage.bits();
+    QImage openglImage = QGLWidget::convertToGLFormat(qimage);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                 qimage.width(), qimage.width(),
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap);
+                 openglImage.width(), openglImage.width(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, openglImage.bits());
 
-    return 0;
+    return *textures;
 }
 
 
@@ -77,7 +84,7 @@ void GLWidget::paintGL() {
     glUseProgram(m_program);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, *m_texture);
+    glBindTexture(GL_TEXTURE_2D, m_texture);
     glUniform1i(handle_texture, 0);
 
 

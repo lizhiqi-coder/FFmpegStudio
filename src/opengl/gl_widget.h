@@ -46,7 +46,7 @@ public slots:
 
 private:
     GLint m_program;
-    GLuint * m_texture;
+    GLuint m_texture;
 
     GLint handle_position;
     GLint handle_tex_coord;
