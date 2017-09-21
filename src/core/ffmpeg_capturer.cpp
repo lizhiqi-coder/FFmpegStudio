@@ -11,8 +11,13 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
 
     av_fmt_ctx = avformat_alloc_context();
 
-    if (avformat_open_input(&av_fmt_ctx, m_video_path, NULL, NULL) < 0) {
-        printf("open video failed ");
+    int ret;
+    ret = avformat_open_input(&av_fmt_ctx, m_video_path, NULL, NULL);
+
+    printf("opengl video result :%d\n", ret);
+
+    if (ret < 0) {
+        printf("open video failed %d\n", ret);
         return;
     }
     for (int i = 0; i < av_fmt_ctx->nb_streams; ++i) {
@@ -25,7 +30,7 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
         }
 
         if (video_index < 0 || audio_index < 0) {
-            printf("can not find video index or audio index");
+            printf("can not find video index or audio index\n");
             return;
         }
         video_codec_ctx = av_fmt_ctx->streams[video_index]->codec;
@@ -34,10 +39,10 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
         audio_codec = avcodec_find_decoder(audio_codec_ctx->codec_id);
 
         if (avcodec_open2(video_codec_ctx, video_codec, NULL) < 0) {
-            printf("open video codec failed");
+            printf("open video codec failed\n");
         }
         if (avcodec_open2(audio_codec_ctx, audio_codec, NULL) < 0) {
-            printf("opengl audio codec failed");
+            printf("open audio codec failed\n");
         }
 
 
@@ -59,6 +64,8 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
                        video_codec_ctx->width, video_codec_ctx->height);
 
         av_dump_format(av_fmt_ctx, 0, m_video_path, 0);
+
+        printf("init ffmpeg succeed\n");
 
     }
 
@@ -127,7 +134,7 @@ void FFmpegCapturer::release() {
         rgb_frame_buffer = NULL;
     }
 
-    if (av_fmt_ctx!=NULL) {
+    if (av_fmt_ctx != NULL) {
         avformat_close_input(&av_fmt_ctx);
         av_fmt_ctx = NULL;
     }
@@ -135,9 +142,6 @@ void FFmpegCapturer::release() {
         sws_freeContext(sws_ctx);
         sws_ctx = NULL;
     }
-
-
-
 
 
 }

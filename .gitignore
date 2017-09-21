@@ -2,4 +2,7 @@
 .idea/
 *.user
 cmake-build-debug
-
+res/video/*
+debug
+Makefile*
+*.stash

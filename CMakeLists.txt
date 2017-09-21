@@ -15,6 +15,7 @@ set(SOURCE_FILES
 include_directories(
         C:\\Qt\\5.9.1\\mingw53_32\\include
         ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src/core
         ${PROJECT_SOURCE_DIR}/src/opengl)
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
