@@ -63,7 +63,7 @@ GLuint GLWidget::initTexture(int width, int height) {
     QImage openglImage = QGLWidget::convertToGLFormat(qimage);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                 openglImage.width(), openglImage.width(),
+                 openglImage.width(), openglImage.height(),
                  0, GL_RGBA, GL_UNSIGNED_BYTE, openglImage.bits());
 
     return *textures;
@@ -95,6 +95,7 @@ void GLWidget::paintGL() {
 
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
 }
 
 void GLWidget::resizeGL(int w, int h) {
