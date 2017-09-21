@@ -25,6 +25,9 @@ public:
     bool captureFrame();
 
 private:
+    void release();
+
+private:
     char *m_video_path;
     AVFormatContext *av_fmt_ctx;
     int video_index = -1;

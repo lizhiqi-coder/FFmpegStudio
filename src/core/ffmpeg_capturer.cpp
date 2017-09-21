@@ -65,7 +65,7 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
 }
 
 FFmpegCapturer::~FFmpegCapturer() {
-
+    release();
 }
 
 void FFmpegCapturer::start() {
@@ -89,6 +89,55 @@ bool FFmpegCapturer::captureFrame() {
     if (got_picture) {
 
     }
+
+
+}
+
+void FFmpegCapturer::release() {
+
+    if (packet->size > 0) {
+        av_packet_unref(packet);
+        packet->size = 0;
+    }
+
+    if (video_frame != NULL) {
+        av_frame_free(&video_frame);
+        video_frame = NULL;
+    }
+    if (video_RGB_frame != NULL) {
+        av_frame_free(&video_RGB_frame);
+        video_RGB_frame = NULL;
+    }
+
+    if (audio_frame != NULL) {
+        av_frame_free(&audio_frame);
+        audio_frame = NULL;
+    }
+
+    if (video_codec_ctx != NULL) {
+        avcodec_close(video_codec_ctx);
+        video_codec_ctx = NULL;
+    }
+    if (audio_codec_ctx != NULL) {
+        avcodec_close(audio_codec_ctx);
+        video_codec_ctx = NULL;
+    }
+    if (rgb_frame_buffer) {
+        av_free(rgb_frame_buffer);
+        rgb_frame_buffer = NULL;
+    }
+
+    if (av_fmt_ctx!=NULL) {
+        avformat_close_input(&av_fmt_ctx);
+        av_fmt_ctx = NULL;
+    }
+    if (sws_ctx != NULL) {
+        sws_freeContext(sws_ctx);
+        sws_ctx = NULL;
+    }
+
+
+
 
 
 }
