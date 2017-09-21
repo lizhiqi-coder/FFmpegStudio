@@ -28,46 +28,46 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
         if (av_fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             audio_index = i;
         }
-
-        if (video_index < 0 || audio_index < 0) {
-            printf("can not find video index or audio index\n");
-            return;
-        }
-        video_codec_ctx = av_fmt_ctx->streams[video_index]->codec;
-        audio_codec_ctx = av_fmt_ctx->streams[audio_index]->codec;
-        video_codec = avcodec_find_decoder(video_codec_ctx->codec_id);
-        audio_codec = avcodec_find_decoder(audio_codec_ctx->codec_id);
-
-        if (avcodec_open2(video_codec_ctx, video_codec, NULL) < 0) {
-            printf("open video codec failed\n");
-        }
-        if (avcodec_open2(audio_codec_ctx, audio_codec, NULL) < 0) {
-            printf("open audio codec failed\n");
-        }
-
-
-        int picture_size = video_codec_ctx->width * video_codec_ctx->height;
-        packet = (AVPacket *) malloc(sizeof(packet));
-        av_new_packet(packet, picture_size);
-
-        video_frame = av_frame_alloc();
-        video_RGB_frame = av_frame_alloc();
-        audio_frame = av_frame_alloc();
-
-        sws_ctx = sws_getContext(video_codec_ctx->width, video_codec_ctx->height, video_codec_ctx->pix_fmt,
-                                 video_codec_ctx->width, video_codec_ctx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC,
-                                 NULL, NULL, NULL);
-
-        int rgb_picture_size = avpicture_get_size(AV_PIX_FMT_RGB24, video_codec_ctx->width, video_codec_ctx->height);
-        rgb_frame_buffer = (uint8_t *) (av_malloc(rgb_picture_size * sizeof(uint8_t)));
-        avpicture_fill((AVPicture *) video_RGB_frame, rgb_frame_buffer, AV_PIX_FMT_RGB24,
-                       video_codec_ctx->width, video_codec_ctx->height);
-
-        av_dump_format(av_fmt_ctx, 0, m_video_path, 0);
-
-        printf("init ffmpeg succeed\n");
-
     }
+
+    if (video_index < 0 || audio_index < 0) {
+        printf("can not find video index or audio index\n");
+        return;
+    }
+    video_codec_ctx = av_fmt_ctx->streams[video_index]->codec;
+    audio_codec_ctx = av_fmt_ctx->streams[audio_index]->codec;
+    video_codec = avcodec_find_decoder(video_codec_ctx->codec_id);
+    audio_codec = avcodec_find_decoder(audio_codec_ctx->codec_id);
+
+    if (avcodec_open2(video_codec_ctx, video_codec, NULL) < 0) {
+        printf("open video codec failed\n");
+    }
+    if (avcodec_open2(audio_codec_ctx, audio_codec, NULL) < 0) {
+        printf("open audio codec failed\n");
+    }
+
+
+    int picture_size = video_codec_ctx->width * video_codec_ctx->height;
+    packet = (AVPacket *) malloc(sizeof(packet));
+    av_new_packet(packet, picture_size);
+
+    video_frame = av_frame_alloc();
+    video_RGB_frame = av_frame_alloc();
+    audio_frame = av_frame_alloc();
+
+    sws_ctx = sws_getContext(video_codec_ctx->width, video_codec_ctx->height, video_codec_ctx->pix_fmt,
+                             video_codec_ctx->width, video_codec_ctx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC,
+                             NULL, NULL, NULL);
+
+    int rgb_picture_size = avpicture_get_size(AV_PIX_FMT_RGB24, video_codec_ctx->width, video_codec_ctx->height);
+    rgb_frame_buffer = (uint8_t *) (av_malloc(rgb_picture_size * sizeof(uint8_t)));
+    avpicture_fill((AVPicture *) video_RGB_frame, rgb_frame_buffer, AV_PIX_FMT_RGB24,
+                   video_codec_ctx->width, video_codec_ctx->height);
+
+    av_dump_format(av_fmt_ctx, 0, m_video_path, 0);
+
+    printf("init ffmpeg succeed\n");
+
 
 }
 
