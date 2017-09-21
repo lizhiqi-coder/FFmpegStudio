@@ -67,7 +67,6 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
     av_dump_format(av_fmt_ctx, 0, m_video_path, 0);
 
 
-
 }
 
 FFmpegCapturer::~FFmpegCapturer() {
@@ -81,21 +80,35 @@ void FFmpegCapturer::start() {
 bool FFmpegCapturer::captureFrame() {
 
     int ret;
-    ret = av_read_frame(av_fmt_ctx, packet);
+    int got_picture;
+    int got_frame;
 
+    ret = av_read_frame(av_fmt_ctx, packet);
     if (ret < 0) {
+        printf("read no frame\n");
         return false;
     }
-    int got_picture;
-    ret = avcodec_decode_video2(video_codec_ctx, video_frame, &got_picture, packet);
-    if (ret < 0) {
-        printf("decode video failed");
+    if (packet->stream_index == video_index) {
+
+        ret = avcodec_decode_video2(video_codec_ctx, video_frame, &got_picture, packet);
+        if (ret < 0) {
+            printf("decode video failed\n");
+        }
+
+        if (got_picture) {
+            printf("got picture\n");
+        }
     }
-
-    if (got_picture) {
-
+    if (packet->stream_index == audio_index) {
+        ret = avcodec_decode_audio4(audio_codec_ctx, audio_frame, &got_frame, packet);
+        if (ret < 0) {
+            printf("decode audio failes\n");
+        }
+        if (got_picture) {
+            printf("got audio frame\n");
+        }
     }
-
+    return true;
 
 }
 

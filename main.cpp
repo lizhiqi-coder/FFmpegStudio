@@ -16,5 +16,11 @@ int main(int argc, char *argv[]) {
 
     w.show();
 
+
+    while (capturer->captureFrame()) {
+
+//           w.onRender();
+    }
+
     return a.exec();
 }

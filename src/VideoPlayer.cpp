@@ -117,8 +117,6 @@ void VideoPlayer::grabFrame() {
         }
     }
 
-    av_packet_free(&packet);
-
 }
 
 void VideoPlayer::saveFrame(AVFrame *frame, int w, int h) {
