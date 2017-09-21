@@ -40,6 +40,8 @@ protected:
 
     void resizeGL(int w, int h) override;
 
+    void onRender(GLuint texture);
+
 public slots:
 
     void cleanup();

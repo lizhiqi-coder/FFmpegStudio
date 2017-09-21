@@ -40,13 +40,13 @@ void GLWidget::initializeGL() {
 GLuint GLWidget::initTexture(int width, int height) {
 
     glActiveTexture(GL_TEXTURE_2D);
-    GLuint *textures = new GLuint[1];
-    glGenTextures(1, textures);
-    if (*textures <= 0) {
+    GLuint texture_id;
+    glGenTextures(1, &texture_id);
+    if (texture_id <= 0) {
         printf("create texture failed");
         return 0;
     }
-    glBindTexture(GL_TEXTURE_2D, *textures);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -66,7 +66,7 @@ GLuint GLWidget::initTexture(int width, int height) {
                  openglImage.width(), openglImage.height(),
                  0, GL_RGBA, GL_UNSIGNED_BYTE, openglImage.bits());
 
-    return *textures;
+    return texture_id;
 }
 
 
@@ -103,6 +103,17 @@ void GLWidget::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
+void GLWidget::onRender(GLuint texture) {
+
+    m_texture = texture;
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glUniform1i(handle_texture, 0);
+
+    update();
+}
+
 
 /**********************************************************************************/
 GLint GLWidget::initProgram(const char *vertex_shader_code,
@@ -123,15 +134,13 @@ GLint GLWidget::initProgram(const char *vertex_shader_code,
     glAttachShader(program, fragment_shader_id);
     glLinkProgram(program);
 
-    GLint *status = new GLint[1];
-    glGetProgramiv(program, GL_LINK_STATUS, status);
+    GLint status;
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
 
-    if (*status == 0) {
+    if (status == 0) {
         glDeleteProgram(program);
         program = 0;
     }
-    delete status;
-
 
     return program;
 }
@@ -143,13 +152,12 @@ GLint GLWidget::compileShader(GLenum type, const char *shader_code) {
     }
     glShaderSource(shader_obj_id, 1, &shader_code, NULL);
     glCompileShader(shader_obj_id);
-    GLint *status = new GLint[1];
-    glGetShaderiv(shader_obj_id, GL_COMPILE_STATUS, status);
-    if (*status == 0) {
+    GLint status = -1;
+    glGetShaderiv(shader_obj_id, GL_COMPILE_STATUS, &status);
+    if (status == 0) {
         glDeleteShader(shader_obj_id);
         shader_obj_id = 0;
     }
-    delete status;
     return shader_obj_id;
 
 }

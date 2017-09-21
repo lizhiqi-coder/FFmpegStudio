@@ -28,12 +28,16 @@ SOURCES += main.cpp\
             src/core/h264_decoder.cpp \
             src/core/camera_client.cpp\
             src/opengl/gl_widget.cpp\
+            src/VideoPlayer.cpp\
+            src/core/ffmpeg_capturer.cpp
 
 HEADERS  += mainwindow.h \
             src/core/h264_decoder.h \
             src/core/h264_frame.h   \
             src/core/camera_client.h \
             src/opengl/gl_widget.h \
+            src/VideoPlayer.h   \
+            src/core/ffmpeg_capturer.h
 
 
 FORMS    += mainwindow.ui \

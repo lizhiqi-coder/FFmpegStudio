@@ -10,7 +10,7 @@ set(SOURCE_FILES
         src/core/camera_client.cpp
         src/opengl/gl_widget.h src/opengl/gl_widget.cpp
         src/VideoPlayer.h src/VideoPlayer.cpp
-        )
+        src/core/ffmpeg_capturer.cpp src/core/ffmpeg_capturer.h)
 
 include_directories(
         C:\\Qt\\5.9.1\\mingw53_32\\include

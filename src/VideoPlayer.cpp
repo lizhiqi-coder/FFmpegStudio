@@ -26,9 +26,9 @@ int VideoPlayer::init() {
     int ret;
     av_register_all();
     avfmtCtx = avformat_alloc_context();
-    if (video_path == NULL) {
-        return -1;
-    }
+//    if (video_path == NULL) {
+//        return -1;
+//    }
     ret = avformat_open_input(&avfmtCtx, video_path.c_str(), NULL, NULL);
     if (ret < 0) {
         printf("open input failed");
