@@ -48,16 +48,16 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
 
 
     int picture_size = video_codec_ctx->width * video_codec_ctx->height;
-    packet = (AVPacket *) malloc(sizeof(packet));
+    packet = (AVPacket *) malloc(sizeof(AVPacket));
     av_new_packet(packet, picture_size);
 
     video_frame = av_frame_alloc();
     video_RGB_frame = av_frame_alloc();
     audio_frame = av_frame_alloc();
 
-    sws_ctx = sws_getContext(video_codec_ctx->width, video_codec_ctx->height, video_codec_ctx->pix_fmt,
-                             video_codec_ctx->width, video_codec_ctx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC,
-                             NULL, NULL, NULL);
+//    sws_ctx = sws_getContext(video_codec_ctx->width, video_codec_ctx->height, video_codec_ctx->pix_fmt,
+//                             video_codec_ctx->width, video_codec_ctx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC,
+//                             NULL, NULL, NULL);
 
     int rgb_picture_size = avpicture_get_size(AV_PIX_FMT_RGB24, video_codec_ctx->width, video_codec_ctx->height);
     rgb_frame_buffer = (uint8_t *) (av_malloc(rgb_picture_size * sizeof(uint8_t)));
@@ -66,7 +66,6 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
 
     av_dump_format(av_fmt_ctx, 0, m_video_path, 0);
 
-    printf("init ffmpeg succeed\n");
 
 
 }
