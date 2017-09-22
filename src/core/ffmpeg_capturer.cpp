@@ -34,6 +34,11 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
         printf("can not find video index or audio index\n");
         return;
     }
+
+    video_time_base = av_q2d(av_fmt_ctx->streams[video_index]->time_base);
+    video_frame_rate = av_q2d(av_fmt_ctx->streams[video_index]->r_frame_rate);
+
+
     video_codec_ctx = av_fmt_ctx->streams[video_index]->codec;
     audio_codec_ctx = av_fmt_ctx->streams[audio_index]->codec;
     video_codec = avcodec_find_decoder(video_codec_ctx->codec_id);
@@ -88,6 +93,8 @@ bool FFmpegCapturer::captureFrame() {
         printf("read no frame\n");
         return false;
     }
+
+//    video
     if (packet->stream_index == video_index) {
 
         ret = avcodec_decode_video2(video_codec_ctx, video_frame, &got_picture, packet);
@@ -96,9 +103,19 @@ bool FFmpegCapturer::captureFrame() {
         }
 
         if (got_picture) {
-            printf("got picture\n");
+
+            auto pts = av_frame_get_best_effort_timestamp(video_frame);
+            auto timestamp = video_time_base * pts;
+//            timestamp*video_frame_rate/
+            video_frame->key_frame;
+//            video_frame.
+            processImage();
+
         }
     }
+
+
+//    audio
     if (packet->stream_index == audio_index) {
         ret = avcodec_decode_audio4(audio_codec_ctx, audio_frame, &got_frame, packet);
         if (ret < 0) {
@@ -106,6 +123,7 @@ bool FFmpegCapturer::captureFrame() {
         }
         if (got_picture) {
             printf("got audio frame\n");
+            processAudio();
         }
     }
     return true;
@@ -155,6 +173,18 @@ void FFmpegCapturer::release() {
         sws_ctx = NULL;
     }
 
+
+}
+
+void FFmpegCapturer::processImage() {
+    sws_ctx = sws_getCachedContext(sws_ctx, video_codec_ctx->width, video_codec_ctx->height,
+                                   video_codec_ctx->pix_fmt, video_codec_ctx->width, video_codec_ctx->height,
+                                   AV_PIX_FMT_RGBA,
+                                   SWS_BICUBIC, NULL, NULL, NULL);
+
+}
+
+void FFmpegCapturer::processAudio() {
 
 }
 
