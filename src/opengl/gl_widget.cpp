@@ -39,7 +39,7 @@ void GLWidget::initializeGL() {
 
 GLuint GLWidget::initTexture(int width, int height) {
 
-    glActiveTexture(GL_TEXTURE_2D);
+    glActiveTexture(GL_TEXTURE0);
     GLuint texture_id;
     glGenTextures(1, &texture_id);
     if (texture_id <= 0) {
@@ -67,6 +67,19 @@ GLuint GLWidget::initTexture(int width, int height) {
                  0, GL_RGBA, GL_UNSIGNED_BYTE, openglImage.bits());
 
     return texture_id;
+}
+
+void GLWidget::setCoverPath(const char *cover_path) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+
+    QImage image_buffer;
+    image_buffer.load(cover_path);
+
+    auto cover_image = QGLWidget::convertToGLFormat(image_buffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                 cover_image.width(), cover_image.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, cover_image.bits());
 }
 
 

@@ -24,9 +24,17 @@ public:
 
     bool captureFrame();
 
+    void processImage();
+
+    void processAudio();
+
+
 private:
     void release();
 
+private:
+    double video_time_base;
+    double video_frame_rate;
 private:
     char *m_video_path;
     AVFormatContext *av_fmt_ctx;
@@ -43,7 +51,6 @@ private:
     SwsContext *sws_ctx;
 
     uint8_t *rgb_frame_buffer;
-
 
 
 };

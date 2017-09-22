@@ -24,6 +24,8 @@ public:
 
     ~GLWidget();
 
+    void setCoverPath(const char *cover_path);
+
 private:
     GLint initProgram(const char *vertex_shader_code,
                       const char *fragment_shader_code);
