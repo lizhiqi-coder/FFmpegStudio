@@ -6,3 +6,4 @@ res/video/*
 debug
 Makefile*
 *.stash
+build/

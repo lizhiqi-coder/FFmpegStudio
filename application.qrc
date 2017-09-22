@@ -1,7 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>res/shader/fragment_shader.glsl</file>
+        <file>res/shader/hue_fragment_shader.glsl</file>
         <file>res/shader/vertex_shader.glsl</file>
         <file>res/image/test.jpg</file>
+        <file>res/image/iron_man.jpg</file>
     </qresource>
 </RCC>
