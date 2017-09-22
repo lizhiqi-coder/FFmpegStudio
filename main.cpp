@@ -9,18 +9,18 @@ int main(int argc, char *argv[]) {
 
 
     printf("start main\n");
-    auto capturer=new FFmpegCapturer("D:\\movie\\av\\javhd\\test.mp4");
+//    auto capturer=new FFmpegCapturer("D:\\movie\\av\\javhd\\test.mp4");
 
     QApplication a(argc, argv);
     GLWidget w;
-
     w.show();
+    w.setCoverPath("D:\\workspace\\FFPMG\\FFmpegStudio\\res\\image\\iron_man.jpg");
 
 
-    while (capturer->captureFrame()) {
-
-//           w.onRender();
-    }
+//    while (capturer->captureFrame()) {
+//
+////           w.onRender();
+//    }
 
     return a.exec();
 }
