@@ -29,12 +29,14 @@ public:
     void processAudio();
 
 
+
 private:
     void release();
-
+    AVPixelFormat getPixFormat();
 private:
     double video_time_base;
     double video_frame_rate;
+
 private:
     char *m_video_path;
     AVFormatContext *av_fmt_ctx;

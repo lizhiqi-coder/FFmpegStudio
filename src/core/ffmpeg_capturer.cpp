@@ -60,9 +60,9 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
     video_RGB_frame = av_frame_alloc();
     audio_frame = av_frame_alloc();
 
-//    sws_ctx = sws_getContext(video_codec_ctx->width, video_codec_ctx->height, video_codec_ctx->pix_fmt,
-//                             video_codec_ctx->width, video_codec_ctx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC,
-//                             NULL, NULL, NULL);
+    sws_ctx = sws_getContext(video_codec_ctx->width, video_codec_ctx->height, getPixFormat(),
+                             video_codec_ctx->width, video_codec_ctx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC,
+                             NULL, NULL, NULL);
 
     int rgb_picture_size = avpicture_get_size(AV_PIX_FMT_RGB24, video_codec_ctx->width, video_codec_ctx->height);
     rgb_frame_buffer = (uint8_t *) (av_malloc(rgb_picture_size * sizeof(uint8_t)));
@@ -185,6 +185,15 @@ void FFmpegCapturer::processImage() {
 }
 
 void FFmpegCapturer::processAudio() {
+
+}
+
+AVPixelFormat FFmpegCapturer::getPixFormat() {
+
+    if (video_codec_ctx != NULL && video_codec_ctx->pix_fmt != AV_PIX_FMT_NONE) {
+        return video_codec_ctx->pix_fmt;
+    }
+    return AV_PIX_FMT_RGB24;
 
 }
 
