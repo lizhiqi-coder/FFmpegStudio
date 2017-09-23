@@ -38,11 +38,14 @@ private:
 protected:
     void initializeGL() override;
 
-    void paintGL() override ;
+    void paintGL() override;
 
     void resizeGL(int w, int h) override;
 
+public:
     void onRender(GLuint texture);
+
+    void onRender(void *texture_data, int width, int height);
 
 public slots:
 
@@ -57,7 +60,7 @@ private:
     GLint handle_texture;
 
 private:
-     const float posCoord[8] = {
+    const float posCoord[8] = {
             -1, 1,
             1, 1,
             -1, -1,

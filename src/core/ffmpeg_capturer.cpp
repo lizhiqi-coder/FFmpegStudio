@@ -82,7 +82,7 @@ void FFmpegCapturer::start() {
 
 }
 
-bool FFmpegCapturer::captureFrame() {
+AVFrame *FFmpegCapturer::captureFrame() {
 
     int ret;
     int got_picture;
@@ -109,8 +109,17 @@ bool FFmpegCapturer::captureFrame() {
 //            timestamp*video_frame_rate/
             video_frame->key_frame;
 //            video_frame.
-            processImage();
+//            processImage();
+            sws_scale(sws_ctx, reinterpret_cast<const uint8_t *const *>(video_frame->data),
+                      video_frame->linesize, 0, video_codec_ctx->height,
+                      video_RGB_frame->data, video_RGB_frame->linesize);
 
+            printf("get RGB frame\n");
+
+            video_RGB_frame->width = video_codec_ctx->width;
+            video_RGB_frame->height = video_codec_ctx->height;
+
+            return video_RGB_frame;
         }
     }
 
@@ -126,7 +135,7 @@ bool FFmpegCapturer::captureFrame() {
             processAudio();
         }
     }
-    return true;
+    return NULL;
 
 }
 
@@ -192,6 +201,8 @@ AVPixelFormat FFmpegCapturer::getPixFormat() {
 
     if (video_codec_ctx != NULL && video_codec_ctx->pix_fmt != AV_PIX_FMT_NONE) {
         return video_codec_ctx->pix_fmt;
+    } else {
+        printf("video codec pix fmt is none!\n");
     }
     return AV_PIX_FMT_RGB24;
 

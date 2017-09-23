@@ -33,9 +33,15 @@ public:
         image_orientation = 0;
         is_image_square = false;
     }
+    ~FFImage(){
+        if (image_data != nullptr) {
+            delete image_data;
+            image_data = nullptr;
+        }
+    }
 
     static inline FFImage *createHeader(int w, int h, int pix_t, int channels) {
-        return new FFImage(w, h, p, channels);
+        return new FFImage(w, h, pix_t, channels);
     }
 };
 

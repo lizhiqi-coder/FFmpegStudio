@@ -12,6 +12,10 @@ extern "C" {
 #include "libswscale/swscale.h"
 };
 
+#include "ffmpeg_frame.h"
+
+#define BYTE uint8_t
+
 class FFmpegCapturer {
 
 public:
@@ -22,17 +26,18 @@ public:
 public:
     void start();
 
-    bool captureFrame();
+    AVFrame *captureFrame();
+
+
+private:
+    void release();
 
     void processImage();
 
     void processAudio();
 
-
-
-private:
-    void release();
     AVPixelFormat getPixFormat();
+
 private:
     double video_time_base;
     double video_frame_rate;
@@ -53,6 +58,10 @@ private:
     SwsContext *sws_ctx;
 
     uint8_t *rgb_frame_buffer;
+    BYTE *frame_buffer;
+
+    Frame *out_frame;
+    FFImage *out_image;
 
 
 };
