@@ -1709,6 +1709,13 @@ typedef struct AVPacket {
  * after decoding.
  **/
 #define AV_PKT_FLAG_DISCARD   0x0004
+/**
+ * The packet comes from a trusted source.
+ *
+ * Otherwise-unsafe constructs such as arbitrary pointers to data
+ * outside the packet may be followed.
+ */
+#define AV_PKT_FLAG_TRUSTED   0x0008
 
 enum AVSideDataParamChangeFlags {
     AV_SIDE_DATA_PARAM_CHANGE_CHANNEL_COUNT  = 0x0001,
@@ -3557,7 +3564,7 @@ typedef struct AVCodecContext {
      */
     char *codec_whitelist;
 
-    /*
+    /**
      * Properties of the stream that gets decoded
      * - encoding: unused
      * - decoding: set by libavcodec
@@ -3879,7 +3886,7 @@ typedef struct AVHWAccel {
 
     /**
      * Hardware accelerated codec capabilities.
-     * see HWACCEL_CODEC_CAP_*
+     * see AV_HWACCEL_CODEC_CAP_*
      */
     int capabilities;
 
@@ -3986,6 +3993,12 @@ typedef struct AVHWAccel {
      */
     int caps_internal;
 } AVHWAccel;
+
+/**
+ * HWAccel is experimental and is thus avoided in favor of non experimental
+ * codecs
+ */
+#define AV_HWACCEL_CODEC_CAP_EXPERIMENTAL 0x0200
 
 /**
  * Hardware acceleration should be used for decoding even if the codec level
