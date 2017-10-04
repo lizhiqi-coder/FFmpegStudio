@@ -83,7 +83,7 @@ void VideoPlayer::stop() {
 }
 
 void VideoPlayer::capture_runnable() {
-    int test_index = 0;
+
     while (m_state != STATE_STOP) {
 
         if (do_stop) {
@@ -102,15 +102,11 @@ void VideoPlayer::capture_runnable() {
 
             mutex.lock();
             video_frame_queue->push(frame);
-            printf("push frame %d <-> %d \n", frame->hasVideo, frame->hasAudio);
+//            printf("push frame %d <-> %d \n", frame->hasVideo, frame->hasAudio);
             mutex.unlock();
 
-            test_index = 0;
         } else {
-            test_index++;
-            if (test_index > 10) {
-                m_state = STATE_STOP;
-            }
+            m_state = STATE_STOP;
         }
     }
 }
@@ -124,10 +120,16 @@ void VideoPlayer::display_runnable() {
 
             mutex.lock();
             auto frame = video_frame_queue->front();
-            printf("pop frame %d <-> %d \n", frame->hasVideo, frame->hasAudio);
-//            emit display(frame->data, frame->width, frame->height);
+//            printf("pop frame %d <-> %d \n", frame->hasVideo, frame->hasAudio);
+
+            if (frame->hasVideo) {
+
+                emit display(frame->data, frame->width, frame->height);
+                std::this_thread::sleep_for(std::chrono::milliseconds(41));
+
+            }
+
             video_frame_queue->pop();
-            std::this_thread::sleep_for(std::chrono::milliseconds(35));
             mutex.unlock();
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
