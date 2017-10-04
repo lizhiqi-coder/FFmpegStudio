@@ -14,7 +14,6 @@ extern "C" {
 
 #include "ffmpeg_frame.h"
 
-#define BYTE uint8_t
 
 class FFmpegCapturer {
 
@@ -24,17 +23,12 @@ public:
     ~FFmpegCapturer();
 
 public:
-    void start();
 
-    AVFrame *captureFrame();
+    FFrame *captureFrame();
 
 
 private:
     void release();
-
-    void processImage();
-
-    void processAudio();
 
     AVPixelFormat getPixFormat();
 
@@ -60,8 +54,8 @@ private:
     uint8_t *rgb_frame_buffer;
     BYTE *frame_buffer;
 
-    Frame *out_frame;
-    FFImage *out_image;
+
+    int rgb_picture_size;
 
 
 };

@@ -64,7 +64,7 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
                              video_codec_ctx->width, video_codec_ctx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC,
                              NULL, NULL, NULL);
 
-    int rgb_picture_size = avpicture_get_size(AV_PIX_FMT_RGB24, video_codec_ctx->width, video_codec_ctx->height);
+    rgb_picture_size = avpicture_get_size(AV_PIX_FMT_RGB24, video_codec_ctx->width, video_codec_ctx->height);
     rgb_frame_buffer = (uint8_t *) (av_malloc(rgb_picture_size * sizeof(uint8_t)));
     avpicture_fill((AVPicture *) video_RGB_frame, rgb_frame_buffer, AV_PIX_FMT_RGB24,
                    video_codec_ctx->width, video_codec_ctx->height);
@@ -78,11 +78,8 @@ FFmpegCapturer::~FFmpegCapturer() {
     release();
 }
 
-void FFmpegCapturer::start() {
 
-}
-
-AVFrame *FFmpegCapturer::captureFrame() {
+FFrame *FFmpegCapturer::captureFrame() {
 
     int ret;
     int got_picture;
@@ -93,6 +90,8 @@ AVFrame *FFmpegCapturer::captureFrame() {
         printf("read no frame\n");
         return NULL;
     }
+
+    auto fframe = new FFrame();
 
 //    video
     if (packet->stream_index == video_index) {
@@ -106,36 +105,35 @@ AVFrame *FFmpegCapturer::captureFrame() {
 
             auto pts = av_frame_get_best_effort_timestamp(video_frame);
             auto timestamp = video_time_base * pts;
-//            timestamp*video_frame_rate/
-            video_frame->key_frame;
-//            video_frame.
-//            processImage();
+
             sws_scale(sws_ctx, reinterpret_cast<const uint8_t *const *>(video_frame->data),
                       video_frame->linesize, 0, video_codec_ctx->height,
                       video_RGB_frame->data, video_RGB_frame->linesize);
 
-            printf("get RGB frame\n");
 
-            video_RGB_frame->width = video_codec_ctx->width;
-            video_RGB_frame->height = video_codec_ctx->height;
+            fframe->hasVideo = true;
+            fframe->width = video_codec_ctx->width;
+            fframe->height = video_codec_ctx->height;
+            fframe->length = video_RGB_frame->linesize[0];
+            fframe->data = (BYTE *) av_malloc(rgb_picture_size);
 
-            return video_RGB_frame;
+            memcpy(fframe->data, video_RGB_frame->data[0], rgb_picture_size);
         }
     }
-
 
 //    audio
     if (packet->stream_index == audio_index) {
         ret = avcodec_decode_audio4(audio_codec_ctx, audio_frame, &got_frame, packet);
         if (ret < 0) {
-            printf("decode audio failes\n");
+            printf("decode audio failed\n");
         }
         if (got_picture) {
-            printf("got audio frame\n");
-            processAudio();
+
+            fframe->hasAudio = true;
         }
     }
-    return NULL;
+
+    return fframe;
 
 }
 
@@ -182,18 +180,6 @@ void FFmpegCapturer::release() {
         sws_ctx = NULL;
     }
 
-
-}
-
-void FFmpegCapturer::processImage() {
-    sws_ctx = sws_getCachedContext(sws_ctx, video_codec_ctx->width, video_codec_ctx->height,
-                                   video_codec_ctx->pix_fmt, video_codec_ctx->width, video_codec_ctx->height,
-                                   AV_PIX_FMT_RGBA,
-                                   SWS_BICUBIC, NULL, NULL, NULL);
-
-}
-
-void FFmpegCapturer::processAudio() {
 
 }
 

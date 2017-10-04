@@ -10,8 +10,8 @@ VideoPlayer::VideoPlayer(char *path) {
     initUI();
 
     connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)));
-    video_frame_queue = new std::queue<AVFrame *>();
-    audio_frame_queue = new std::queue<AVFrame *>();
+    video_frame_queue = new std::queue<FFrame *>();
+    audio_frame_queue = new std::queue<FFrame *>();
 }
 
 VideoPlayer::~VideoPlayer() {
@@ -116,17 +116,20 @@ void VideoPlayer::capture_runnable() {
 
 void VideoPlayer::display_runnable() {
 
+    printf("display_runnable\n");
     while (m_state != STATE_STOP) {
-        printf("display_runnable\n");
 
         if (video_frame_queue->size() > 0) {
 
             mutex.lock();
             auto frame = video_frame_queue->front();
-            mutex.unlock();
+            if (frame->hasVideo) {
+                printf("get video frame\n");
+            }
 //            emit display(frame->data, frame->width, frame->height);
 //            video_frame_queue->pop();
             std::this_thread::sleep_for(std::chrono::milliseconds(35));
+            mutex.unlock();
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;

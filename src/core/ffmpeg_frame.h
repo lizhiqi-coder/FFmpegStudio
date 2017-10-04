@@ -5,6 +5,7 @@
 #ifndef FFMPEGSTUDIO_FFMPEG_FRAME_H
 #define FFMPEGSTUDIO_FFMPEG_FRAME_H
 
+
 class FFImage {
 public:
     int width;
@@ -33,7 +34,8 @@ public:
         image_orientation = 0;
         is_image_square = false;
     }
-    ~FFImage(){
+
+    ~FFImage() {
         if (image_data != nullptr) {
             delete image_data;
             image_data = nullptr;
@@ -62,7 +64,7 @@ public:
     int sample_channels;
     long size;
 
-    Frame(){
+    Frame() {
         key_fame = false;
         image = 0;
         nb_samples = 0;
@@ -73,6 +75,35 @@ public:
         sample_format = -1;
         sample_channels = 0;
     }
+
+
+};
+
+typedef unsigned char BYTE;
+
+class FFrame {
+
+public:
+    ~FFrame() {
+
+        if (data != nullptr) {
+            delete data;
+            data = nullptr;
+        }
+
+    }
+
+public:
+    BYTE *data;
+    bool hasVideo = false;
+    bool hasAudio = false;
+    int length;
+    int width;
+    int height;
+    double pts;
+
+    int nChannels;
+    int sampleRate;
 
 
 };

@@ -19,6 +19,7 @@ extern "C" {
 
 #include "opengl/gl_widget.h"
 #include "core/ffmpeg_capturer.h"
+#include "core/ffmpeg_frame.h"
 
 #define QUEUE_MAX_SIZE 8
 
@@ -68,8 +69,8 @@ private:
 
 private:
 
-    std::queue<AVFrame *> *video_frame_queue;
-    std::queue<AVFrame *> *audio_frame_queue;
+    std::queue<FFrame *> *video_frame_queue;
+    std::queue<FFrame *> *audio_frame_queue;
 
     std::thread *capture_thread;
     std::thread *display_thread;
