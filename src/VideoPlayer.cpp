@@ -97,11 +97,12 @@ void VideoPlayer::capture_runnable() {
             continue;
         }
 
-        auto frame_ptr = capturer->captureFrame();
-        if (frame_ptr != NULL) {
+        auto frame = capturer->captureFrame();
+        if (frame != NULL) {
 
             mutex.lock();
-            video_frame_queue->push(frame_ptr);
+            video_frame_queue->push(frame);
+            printf("push frame %d <-> %d \n", frame->hasVideo, frame->hasAudio);
             mutex.unlock();
 
             test_index = 0;
@@ -123,11 +124,9 @@ void VideoPlayer::display_runnable() {
 
             mutex.lock();
             auto frame = video_frame_queue->front();
-            if (frame->hasVideo) {
-                printf("get video frame\n");
-            }
+            printf("pop frame %d <-> %d \n", frame->hasVideo, frame->hasAudio);
 //            emit display(frame->data, frame->width, frame->height);
-//            video_frame_queue->pop();
+            video_frame_queue->pop();
             std::this_thread::sleep_for(std::chrono::milliseconds(35));
             mutex.unlock();
         } else {
