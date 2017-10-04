@@ -5,55 +5,71 @@
 #ifndef FFMPEGSTUDIO_VIDEOPLAYER_H
 #define FFMPEGSTUDIO_VIDEOPLAYER_H
 
-#include <QtCore/QThread>
-#include <stdio.h>
 
-extern  "C"{
-#include "libavcodec/avcodec.h"
-#include "libavformat/avformat.h"
-#include "libavutil/pixfmt.h"
-#include "libswscale/swscale.h"
+extern "C" {
+#include "libavutil/frame.h"
 };
 
-class VideoPlayer :public QThread {
-    Q_OBJECT
+#include <stdio.h>
+#include <stdlib.h>
+#include <thread>
+#include <QtWidgets/QWidget>
+#include <queue>
+
+#include "opengl/gl_widget.h"
+#include "core/ffmpeg_capturer.h"
+
+
+class VideoPlayer : public QWidget {
+
+Q_OBJECT
 public:
-    explicit VideoPlayer(std::string path);
+    VideoPlayer(char *path);
 
     ~VideoPlayer();
 
+signals:
+
+    void display(void *data, int w, int h);
+
+public:
+    void play();
+
+    void pause();
+
+    void stop();
+
+    void seekTo(double timestamp);
+
 private:
-    int init();
+    const static int STATE_STOP = 0;
+    const static int STATE_PLAYING = 1;
+    const static int STATE_PAUSE = 2;
 
-    void grabFrame();
+    int m_state = STATE_STOP;
 
-    void saveFrame(AVFrame *frame, int w, int h);
-protected:
-    void run();
+    bool do_play = false;
+    bool do_pause = false;
+    bool do_stop = false;
+
+    void initUI();
+
+    void capture_runnable();
+
+    void display_runnable();
 
 private:
-    std::string video_path;
+    char *video_path;
+    FFmpegCapturer *capturer;
+    GLWidget *surfaceView;
 
-    AVFormatContext *avfmtCtx;
 
-    int video_stream_index=-1;
-    int audio_stream_index = -1;
+private:
+    std::queue<AVFrame *> video_frame_queue;
+    std::queue<AVFrame *> audio_frame_queue;
 
-    AVCodecContext *avCodecCtx;
-    AVCodec *videoCodec;
-
-    int imageWidth, imageHeight;
-    int image_size;
-    AVPacket *packet;
-    AVFrame*video_frame;
-    AVFrame*video_RGB_frame;
-    AVFrame*audio_frame;
-
-    SwsContext *image_convert_ctx;
-
-    uint8_t *out_buffer;
-    int numBytes;
-
+    std::thread *capture_thread;
+    std::thread *display_thread;
 
 };
 

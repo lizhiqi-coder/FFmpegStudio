@@ -45,9 +45,9 @@ protected:
 public:
     void onRender(GLuint texture);
 
-    void onRender(void *texture_data, int width, int height);
-
 public slots:
+
+    void onRender(void *texture_data, int width, int height);
 
     void cleanup();
 

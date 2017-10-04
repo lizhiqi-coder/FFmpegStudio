@@ -2,8 +2,11 @@
 #include <QtWidgets/QApplication>
 #include "gl_widget.h"
 #include "src/core/ffmpeg_capturer.h"
+#include "src/VideoPlayer.h"
 
+#define NEW
 
+#ifdef OLD
 int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(application);
 
@@ -43,3 +46,21 @@ int main(int argc, char *argv[]) {
 
     return a.exec();
 }
+#endif
+
+#ifdef NEW
+
+int main(int argc, char *argv[]) {
+    Q_INIT_RESOURCE(application);
+
+
+    QApplication a(argc, argv);
+    auto player = new VideoPlayer("C:\\Users\\58boy\\Desktop\\daoxiang.mp4");
+    player->setGeometry(100, 100, 450, 350);
+    player->show();
+    player->play();
+
+    return a.exec();
+}
+
+#endif
