@@ -46,7 +46,7 @@ private:
     const static int STATE_PLAYING = 1;
     const static int STATE_PAUSE = 2;
 
-    int m_state = STATE_STOP;
+    volatile int m_state = STATE_STOP;
 
     bool do_play = false;
     bool do_pause = false;

@@ -11,9 +11,6 @@ VideoPlayer::VideoPlayer(char *path) {
 
     connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)));
 
-    capture_thread = new std::thread(VideoPlayer::capture_runnable, this);
-    display_thread = new std::thread(VideoPlayer::display_runnable, this);
-
 }
 
 VideoPlayer::~VideoPlayer() {
@@ -41,7 +38,16 @@ void VideoPlayer::play() {
 
     if (m_state == STATE_STOP) {
 
+        if (capture_thread != nullptr) {
+            delete capture_thread;
+        }
+        if (display_thread != nullptr) {
+            delete display_thread;
+        }
+
         m_state = STATE_PLAYING;
+        capture_thread = new std::thread(VideoPlayer::capture_runnable, this);
+        display_thread = new std::thread(VideoPlayer::display_runnable, this);
 
         capture_thread->detach();
         display_thread->detach();
@@ -73,7 +79,6 @@ void VideoPlayer::stop() {
 void VideoPlayer::capture_runnable() {
 
     while (m_state != STATE_STOP) {
-        printf("capture_runnable\n");
 
         if (do_stop) {
             m_state = STATE_STOP;
