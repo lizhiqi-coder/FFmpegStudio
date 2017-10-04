@@ -10,7 +10,8 @@ VideoPlayer::VideoPlayer(char *path) {
     initUI();
 
     connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)));
-
+    video_frame_queue = new std::queue<AVFrame *>();
+    audio_frame_queue = new std::queue<AVFrame *>();
 }
 
 VideoPlayer::~VideoPlayer() {
@@ -31,6 +32,11 @@ VideoPlayer::~VideoPlayer() {
     if (display_thread != nullptr) {
         delete display_thread;
     }
+
+    delete video_frame_queue;
+    delete audio_frame_queue;
+    video_frame_queue = nullptr;
+    audio_frame_queue = nullptr;
 
 }
 
@@ -77,7 +83,7 @@ void VideoPlayer::stop() {
 }
 
 void VideoPlayer::capture_runnable() {
-
+    int test_index = 0;
     while (m_state != STATE_STOP) {
 
         if (do_stop) {
@@ -93,7 +99,17 @@ void VideoPlayer::capture_runnable() {
 
         auto frame_ptr = capturer->captureFrame();
         if (frame_ptr != NULL) {
-            video_frame_queue.push(frame_ptr);
+
+            mutex.lock();
+            video_frame_queue->push(frame_ptr);
+            mutex.unlock();
+
+            test_index = 0;
+        } else {
+            test_index++;
+            if (test_index > 10) {
+                m_state = STATE_STOP;
+            }
         }
     }
 }
@@ -103,12 +119,13 @@ void VideoPlayer::display_runnable() {
     while (m_state != STATE_STOP) {
         printf("display_runnable\n");
 
-        if (video_frame_queue.size() > 0) {
+        if (video_frame_queue->size() > 0) {
 
-            auto frame = video_frame_queue.front();
-            emit display(frame->data, frame->width, frame->height);
-
-            video_frame_queue.pop();
+            mutex.lock();
+            auto frame = video_frame_queue->front();
+            mutex.unlock();
+//            emit display(frame->data, frame->width, frame->height);
+//            video_frame_queue->pop();
             std::this_thread::sleep_for(std::chrono::milliseconds(35));
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));

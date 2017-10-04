@@ -13,12 +13,14 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <thread>
+#include <mutex>
 #include <QtWidgets/QWidget>
 #include <queue>
 
 #include "opengl/gl_widget.h"
 #include "core/ffmpeg_capturer.h"
 
+#define QUEUE_MAX_SIZE 8
 
 class VideoPlayer : public QWidget {
 
@@ -65,11 +67,13 @@ private:
 
 
 private:
-    std::queue<AVFrame *> video_frame_queue;
-    std::queue<AVFrame *> audio_frame_queue;
+
+    std::queue<AVFrame *> *video_frame_queue;
+    std::queue<AVFrame *> *audio_frame_queue;
 
     std::thread *capture_thread;
     std::thread *display_thread;
+    std::mutex mutex;
 
 };
 

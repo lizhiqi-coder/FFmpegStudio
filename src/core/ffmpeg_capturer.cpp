@@ -91,7 +91,7 @@ AVFrame *FFmpegCapturer::captureFrame() {
     ret = av_read_frame(av_fmt_ctx, packet);
     if (ret < 0) {
         printf("read no frame\n");
-        return false;
+        return NULL;
     }
 
 //    video
