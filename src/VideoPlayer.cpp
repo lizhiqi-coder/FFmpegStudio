@@ -124,9 +124,14 @@ void VideoPlayer::display_runnable() {
 
             if (frame->hasVideo) {
 
+                printf("video frame pts :%f\n", frame->pts);
                 emit display(frame->data, frame->width, frame->height);
                 std::this_thread::sleep_for(std::chrono::milliseconds(41));
 
+            }
+
+            if (frame->hasAudio) {
+                printf("frame has audio %f\n", frame->pts);
             }
 
             video_frame_queue->pop();

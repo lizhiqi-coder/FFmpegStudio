@@ -69,6 +69,24 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
     avpicture_fill((AVPicture *) video_RGB_frame, rgb_frame_buffer, AV_PIX_FMT_RGB24,
                    video_codec_ctx->width, video_codec_ctx->height);
 
+
+    /**audio**/
+    auto in_audio_channels = av_get_channel_layout_nb_channels(audio_codec_ctx->channels);
+    auto in_audio_sample_fmt = audio_codec_ctx->sample_fmt;
+    auto in_audio_samplerate = audio_codec_ctx->sample_rate;
+
+    out_audio_channels = in_audio_channels;
+    out_audio_samplerate = in_audio_samplerate;
+    out_audio_sample_fmt = AV_SAMPLE_FMT_S16;
+
+    out_audio_length = av_samples_get_buffer_size(NULL, out_audio_channels, NB_SAMPLES, out_audio_sample_fmt, 1);
+    swr_ctx = swr_alloc();
+    swr_ctx = swr_alloc_set_opts(swr_ctx,
+                                 out_audio_channels, out_audio_sample_fmt, out_audio_samplerate,
+                                 in_audio_channels, in_audio_sample_fmt, in_audio_samplerate,
+                                 0, NULL);
+    swr_init(swr_ctx);
+
     av_dump_format(av_fmt_ctx, 0, m_video_path, 0);
 
 
@@ -118,7 +136,6 @@ FFrame *FFmpegCapturer::captureFrame() {
         if (got_picture) {
 
             auto pts = av_frame_get_best_effort_timestamp(video_frame);
-            auto timestamp = video_time_base * pts;
 
             sws_scale(sws_ctx, reinterpret_cast<const uint8_t *const *>(video_frame->data),
                       video_frame->linesize, 0, video_codec_ctx->height,
@@ -129,7 +146,7 @@ FFrame *FFmpegCapturer::captureFrame() {
             fframe->width = video_codec_ctx->width;
             fframe->height = video_codec_ctx->height;
             fframe->length = video_RGB_frame->linesize[0];
-            fframe->data = (BYTE *) av_malloc(rgb_picture_size);
+            fframe->data = (BYTE *) av_mallocz(rgb_picture_size);
 
             fframe->pts = current_pts + pts;
 
@@ -143,9 +160,36 @@ FFrame *FFmpegCapturer::captureFrame() {
         if (ret < 0) {
             printf("decode audio failed\n");
         }
-        if (got_picture) {
+
+        if (packet->dts == AV_NOPTS_VALUE
+            && audio_frame->opaque
+            && *(uint64_t *) audio_frame->opaque != AV_NOPTS_VALUE) {
+            pts = *(uint64_t *) audio_frame->opaque;
+        } else if (packet->dts != AV_NOPTS_VALUE) {
+            pts = packet->dts;
+        } else {
+            pts = 0;
+        }
+        pts *= av_q2d(av_fmt_ctx->streams[audio_index]->time_base);
+
+        if (got_frame) {
+
+//            todo
+            uint8_t *out_buffer = (uint8_t *) av_mallocz(MAX_AUDIO_FRAME_SZIE * 2);
+            swr_convert(swr_ctx, &out_buffer, MAX_AUDIO_FRAME_SZIE,
+                        (const uint8_t **) (audio_frame->data), audio_frame->nb_samples);
 
             fframe->hasAudio = true;
+            fframe->data = out_buffer;
+            fframe->nChannels = out_audio_channels;
+            fframe->sampleRate = out_audio_samplerate;
+
+            fframe->length = out_audio_length;
+
+            fframe->pts = current_pts + pts;
+
+            memcpy(fframe->data, audio_frame->data[0], MAX_AUDIO_FRAME_SZIE * 2);
+
         }
     }
     current_pts += pts;
@@ -195,6 +239,10 @@ void FFmpegCapturer::release() {
     if (sws_ctx != NULL) {
         sws_freeContext(sws_ctx);
         sws_ctx = NULL;
+    }
+    if (swr_ctx != NULL) {
+        swr_free(&swr_ctx);
+        swr_ctx = NULL;
     }
 
 

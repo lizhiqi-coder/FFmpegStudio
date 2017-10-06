@@ -10,10 +10,13 @@ extern "C" {
 #include "libavformat/avformat.h"
 #include "libavutil/avutil.h"
 #include "libswscale/swscale.h"
+#include "libswresample/swresample.h"
 };
 
 #include "ffmpeg_frame.h"
 
+#define NB_SAMPLES 1024
+#define MAX_AUDIO_FRAME_SZIE 192000
 
 class FFmpegCapturer {
 
@@ -50,6 +53,7 @@ private:
     AVFrame *audio_frame;
 
     SwsContext *sws_ctx;
+    SwrContext *swr_ctx;
 
     uint8_t *rgb_frame_buffer;
     BYTE *frame_buffer;
@@ -57,6 +61,12 @@ private:
 
     int rgb_picture_size;
     double current_pts = 0;
+
+    /**audio**/
+    int out_audio_samplerate = 0;
+    int out_audio_channels = 0;
+    AVSampleFormat out_audio_sample_fmt = AV_SAMPLE_FMT_S16;
+    int out_audio_length;
 
 
 };

@@ -5,6 +5,9 @@
 #ifndef FFMPEGSTUDIO_FFMPEG_FRAME_H
 #define FFMPEGSTUDIO_FFMPEG_FRAME_H
 
+extern "C" {
+#include <libavutil/avutil.h>
+};
 
 class FFImage {
 public:
@@ -87,8 +90,7 @@ public:
     ~FFrame() {
 
         if (data != nullptr) {
-            delete data;
-            data = nullptr;
+            av_free(data);
         }
 
     }
