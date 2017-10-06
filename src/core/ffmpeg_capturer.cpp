@@ -137,6 +137,16 @@ FFrame *FFmpegCapturer::captureFrame() {
 
 //            auto pts = av_frame_get_best_effort_timestamp(video_frame);
 
+            video_frame->data[0] += video_frame->linesize[0] * (video_codec_ctx->height - 1);
+            video_frame->linesize[0] *= -1;
+
+            video_frame->data[1] += video_frame->linesize[1] * (video_codec_ctx->height / 2 - 1);
+            video_frame->linesize[1] *= -1;
+
+            video_frame->data[2] += video_frame->linesize[2] * (video_codec_ctx->height / 2 - 1);
+            video_frame->linesize[2] *= -1;
+
+
             sws_scale(sws_ctx, reinterpret_cast<const uint8_t *const *>(video_frame->data),
                       video_frame->linesize, 0, video_codec_ctx->height,
                       video_RGB_frame->data, video_RGB_frame->linesize);
