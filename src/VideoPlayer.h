@@ -15,6 +15,8 @@ extern "C" {
 #include <thread>
 #include <mutex>
 #include <QtWidgets/QWidget>
+#include <QtMultimedia/QAudioFormat>
+#include <QtMultimedia/QAudioOutput>
 #include <queue>
 
 #include "opengl/gl_widget.h"
@@ -57,6 +59,8 @@ private:
 
     void initUI();
 
+    void initAudioPlayer(int samplerate,int channels);
+
     void capture_runnable();
 
     void display_runnable();
@@ -65,6 +69,9 @@ private:
     char *video_path;
     FFmpegCapturer *capturer;
     GLWidget *surfaceView;
+    QAudioOutput *audio;
+    QIODevice *audio_stream;
+
 
 
 private:
