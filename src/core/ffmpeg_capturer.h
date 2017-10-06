@@ -56,6 +56,7 @@ private:
 
 
     int rgb_picture_size;
+    double current_pts = 0;
 
 
 };

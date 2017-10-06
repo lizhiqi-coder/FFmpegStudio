@@ -84,6 +84,7 @@ FFrame *FFmpegCapturer::captureFrame() {
     int ret;
     int got_picture;
     int got_frame;
+    double pts = 0;
 
     ret = av_read_frame(av_fmt_ctx, packet);
     if (ret < 0) {
@@ -101,6 +102,19 @@ FFrame *FFmpegCapturer::captureFrame() {
             printf("decode video failed\n");
         }
 
+        if (packet->dts == AV_NOPTS_VALUE
+            && video_frame->opaque
+            && *(uint64_t *) video_frame->opaque != AV_NOPTS_VALUE) {
+            pts = *(uint64_t *) video_frame->opaque;
+        } else if (packet->dts != AV_NOPTS_VALUE) {
+            pts = packet->dts;
+        } else {
+            pts = 0;
+        }
+
+        pts *= av_q2d(av_fmt_ctx->streams[video_index]->time_base);
+
+
         if (got_picture) {
 
             auto pts = av_frame_get_best_effort_timestamp(video_frame);
@@ -117,6 +131,8 @@ FFrame *FFmpegCapturer::captureFrame() {
             fframe->length = video_RGB_frame->linesize[0];
             fframe->data = (BYTE *) av_malloc(rgb_picture_size);
 
+            fframe->pts = current_pts + pts;
+
             memcpy(fframe->data, video_RGB_frame->data[0], rgb_picture_size);
         }
     }
@@ -132,6 +148,7 @@ FFrame *FFmpegCapturer::captureFrame() {
             fframe->hasAudio = true;
         }
     }
+    current_pts += pts;
 
     return fframe;
 
