@@ -135,7 +135,7 @@ FFrame *FFmpegCapturer::captureFrame() {
 
         if (got_picture) {
 
-            auto pts = av_frame_get_best_effort_timestamp(video_frame);
+//            auto pts = av_frame_get_best_effort_timestamp(video_frame);
 
             sws_scale(sws_ctx, reinterpret_cast<const uint8_t *const *>(video_frame->data),
                       video_frame->linesize, 0, video_codec_ctx->height,
@@ -170,7 +170,9 @@ FFrame *FFmpegCapturer::captureFrame() {
         } else {
             pts = 0;
         }
-        pts *= av_q2d(av_fmt_ctx->streams[audio_index]->time_base);
+//        av_rescale_q()时间基转换
+
+        pts *= av_q2d(av_fmt_ctx->streams[audio_index]->time_base);//转换为秒
 
         if (got_frame) {
 
@@ -192,7 +194,7 @@ FFrame *FFmpegCapturer::captureFrame() {
 
         }
     }
-    current_pts += pts;
+//    current_pts += pts;
 
     return fframe;
 

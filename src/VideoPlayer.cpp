@@ -115,26 +115,31 @@ void VideoPlayer::capture_runnable() {
 }
 
 void VideoPlayer::display_runnable() {
-
-    printf("display_runnable\n");
+    int64_t delta = 0;//微秒
+    double time = 0;
     while (m_state != STATE_STOP) {
 
         if (video_frame_queue->size() > 0) {
 
             mutex.lock();
             auto frame = video_frame_queue->front();
-//            printf("pop frame %d <-> %d \n", frame->hasVideo, frame->hasAudio);
 
             if (frame->hasVideo) {
 
-                printf("video frame pts :%f\n", frame->pts);
+                if (time < frame->pts) {
+                    delta = (frame->pts - time) * 1000;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(delta));
+
                 emit display(frame->data, frame->width, frame->height);
-                std::this_thread::sleep_for(std::chrono::milliseconds(41));
+
+
+                time = frame->pts;
 
             }
 
             if (frame->hasAudio) {
-                printf("frame has audio %f\n", frame->pts);
+                printf("frame has audio %10f\n", frame->pts);
 
 //                audio_stream->write((const char *) frame->data, frame->length);
             }
@@ -159,21 +164,21 @@ void VideoPlayer::initUI() {
     setLayout(layout);
 
 }
-
-void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
-    try {
-
-
-        QAudioFormat audioFormat;
-        audioFormat.setSampleRate(samplerate);
-        audioFormat.setByteOrder(QAudioFormat::LittleEndian);
-        audioFormat.setSampleType(QAudioFormat::SignedInt);
-        audioFormat.setChannelCount(channels);
-        audioFormat.setSampleSize(16);//short
-        audioFormat.setCodec("audio/pcm");
-        audio = new QAudioOutput(audioFormat, this);
-        audio_stream = audio->start();
-    } catch (std::exception e) {
-
-    }
-}
+//
+//void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
+//    try {
+//
+//
+//        QAudioFormat audioFormat;
+//        audioFormat.setSampleRate(samplerate);
+//        audioFormat.setByteOrder(QAudioFormat::LittleEndian);
+//        audioFormat.setSampleType(QAudioFormat::SignedInt);
+//        audioFormat.setChannelCount(channels);
+//        audioFormat.setSampleSize(16);//short
+//        audioFormat.setCodec("audio/pcm");
+//        audio = new QAudioOutput(audioFormat, this);
+//        audio_stream = audio->start();
+//    } catch (std::exception e) {
+//
+//    }
+//}
