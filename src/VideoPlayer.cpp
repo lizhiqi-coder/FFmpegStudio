@@ -142,7 +142,13 @@ void VideoPlayer::display_runnable() {
             if (frame->hasAudio) {
                 printf("frame has audio %10f\n", frame->pts);
 
-//                audio_stream->write((const char *) frame->data, frame->length);
+                if (audio_stream != NULL && audio_stream != nullptr) {
+
+                    printf("audio_stream is good\n");
+                    audio_stream->write((const char *) frame->data, frame->length);
+                } else {
+                    printf("audio_stream is null\n");
+                }
             }
 
             video_frame_queue->pop();
@@ -187,7 +193,8 @@ void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
         audioFormat = deviceInfo.nearestFormat(audioFormat);
     }
 
-    auto audio = new QAudioOutput(audioFormat, QApplication::instance());
-    audio->start();
+
+    audio = new QAudioOutput(audioFormat, QApplication::instance());
+    audio_stream = audio->start();
     printf("audio start\n");
 }
