@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include <QtWidgets/QApplication>
 #include "gl_widget.h"
-#include "src/core/ffmpeg_capturer.h"
 #include "src/VideoPlayer.h"
 
 #define NEW

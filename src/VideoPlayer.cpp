@@ -8,7 +8,6 @@ VideoPlayer::VideoPlayer(char *path) {
     video_path = path;
     capturer = new FFmpegCapturer(video_path);
     initUI();
-    initAudioPlayer(44100, 2);
 
     connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)));
     video_frame_queue = new std::queue<FFrame *>();
@@ -62,6 +61,7 @@ void VideoPlayer::play() {
         capture_thread->detach();
         display_thread->detach();
 
+        this->initAudioPlayer(44100, 2);
     }
 
     do_play = true;
@@ -166,7 +166,11 @@ void VideoPlayer::initUI() {
 
 }
 
-//
+/**
+ * 只调用一次
+ * @param samplerate
+ * @param channels
+ */
 void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
 
     QAudioFormat audioFormat;
@@ -183,5 +187,7 @@ void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
         audioFormat = deviceInfo.nearestFormat(audioFormat);
     }
 
-    audio = new QAudioOutput(audioFormat, this);
+    auto audio = new QAudioOutput(audioFormat, QApplication::instance());
+    audio->start();
+    printf("audio start\n");
 }
