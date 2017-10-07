@@ -65,7 +65,7 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
                              NULL, NULL, NULL);
 
     rgb_picture_size = avpicture_get_size(AV_PIX_FMT_RGB24, video_codec_ctx->width, video_codec_ctx->height);
-    rgb_frame_buffer = (uint8_t *) (av_malloc(rgb_picture_size * sizeof(uint8_t)));
+    rgb_frame_buffer = (uint8_t *) (av_mallocz(rgb_picture_size));
     avpicture_fill((AVPicture *) video_RGB_frame, rgb_frame_buffer, AV_PIX_FMT_RGB24,
                    video_codec_ctx->width, video_codec_ctx->height);
 
@@ -147,7 +147,7 @@ FFrame *FFmpegCapturer::captureFrame() {
             video_frame->linesize[2] *= -1;
 
 
-            sws_scale(sws_ctx, reinterpret_cast<const uint8_t *const *>(video_frame->data),
+            sws_scale(sws_ctx, (const uint8_t *const *) (video_frame->data),
                       video_frame->linesize, 0, video_codec_ctx->height,
                       video_RGB_frame->data, video_RGB_frame->linesize);
 
@@ -263,11 +263,12 @@ void FFmpegCapturer::release() {
 AVPixelFormat FFmpegCapturer::getPixFormat() {
 
     if (video_codec_ctx != NULL && video_codec_ctx->pix_fmt != AV_PIX_FMT_NONE) {
+        printf("video codec pix fmt is :%d\n", video_codec_ctx->pix_fmt);
         return video_codec_ctx->pix_fmt;
     } else {
         printf("video codec pix fmt is none!\n");
     }
-    return AV_PIX_FMT_RGB24;
+    return AV_PIX_FMT_YUV420P;
 
 }
 
