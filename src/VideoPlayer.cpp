@@ -8,7 +8,7 @@ VideoPlayer::VideoPlayer(char *path) {
     video_path = path;
     capturer = new FFmpegCapturer(video_path);
     initUI();
-//    initAudioPlayer(44100, 2);
+    initAudioPlayer(44100, 2);
 
     connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)));
     video_frame_queue = new std::queue<FFrame *>();
@@ -32,6 +32,7 @@ VideoPlayer::~VideoPlayer() {
     }
     if (display_thread != nullptr) {
         delete display_thread;
+        display_thread = nullptr;
     }
 
     delete video_frame_queue;
@@ -164,21 +165,23 @@ void VideoPlayer::initUI() {
     setLayout(layout);
 
 }
+
 //
-//void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
-//    try {
-//
-//
-//        QAudioFormat audioFormat;
-//        audioFormat.setSampleRate(samplerate);
-//        audioFormat.setByteOrder(QAudioFormat::LittleEndian);
-//        audioFormat.setSampleType(QAudioFormat::SignedInt);
-//        audioFormat.setChannelCount(channels);
-//        audioFormat.setSampleSize(16);//short
-//        audioFormat.setCodec("audio/pcm");
-//        audio = new QAudioOutput(audioFormat, this);
-//        audio_stream = audio->start();
-//    } catch (std::exception e) {
-//
-//    }
-//}
+void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
+
+    QAudioFormat audioFormat;
+    audioFormat.setSampleRate(samplerate);
+    audioFormat.setByteOrder(QAudioFormat::LittleEndian);
+    audioFormat.setSampleType(QAudioFormat::SignedInt);
+    audioFormat.setChannelCount(channels);
+    audioFormat.setSampleSize(16);//short
+    audioFormat.setCodec("audio/pcm");
+
+    auto deviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    if (!deviceInfo.isFormatSupported(audioFormat)) {
+        printf("default format is not supported\n");
+        audioFormat = deviceInfo.nearestFormat(audioFormat);
+    }
+
+    audio = new QAudioOutput(audioFormat, this);
+}
