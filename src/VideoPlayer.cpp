@@ -141,6 +141,8 @@ void VideoPlayer::display_runnable() {
                 if (audio_stream != NULL && audio_stream != nullptr) {
 
                     audio_stream->write((const char *) frame->data, frame->length);
+                    delete frame;
+                    frame = nullptr;
 
                 } else {
 
