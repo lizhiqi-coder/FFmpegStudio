@@ -106,6 +106,7 @@ public:
 
     int nChannels;
     int sampleRate;
+    uint64_t channel_layout;
 
 
 };

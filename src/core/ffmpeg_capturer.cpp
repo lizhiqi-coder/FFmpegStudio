@@ -39,10 +39,17 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
     video_frame_rate = av_q2d(av_fmt_ctx->streams[video_index]->r_frame_rate);
 
 
-    video_codec_ctx = av_fmt_ctx->streams[video_index]->codec;
-    audio_codec_ctx = av_fmt_ctx->streams[audio_index]->codec;
-    video_codec = avcodec_find_decoder(video_codec_ctx->codec_id);
-    audio_codec = avcodec_find_decoder(audio_codec_ctx->codec_id);
+    auto video_codec_par = av_fmt_ctx->streams[video_index]->codecpar;
+    auto audio_codec_par = av_fmt_ctx->streams[audio_index]->codecpar;
+
+    video_codec = avcodec_find_decoder(video_codec_par->codec_id);
+    audio_codec = avcodec_find_decoder(audio_codec_par->codec_id);
+
+    video_codec_ctx = avcodec_alloc_context3(video_codec);
+    audio_codec_ctx = avcodec_alloc_context3(audio_codec);
+
+    avcodec_parameters_to_context(video_codec_ctx, video_codec_par);
+    avcodec_parameters_to_context(audio_codec_ctx, audio_codec_par);
 
     if (avcodec_open2(video_codec_ctx, video_codec, NULL) < 0) {
         printf("open video codec failed\n");
@@ -52,9 +59,8 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
     }
 
 
-    int picture_size = video_codec_ctx->width * video_codec_ctx->height;
-    packet = (AVPacket *) malloc(sizeof(AVPacket));
-    av_new_packet(packet, picture_size);
+    packet = av_packet_alloc();
+    av_init_packet(packet);
 
     video_frame = av_frame_alloc();
     video_RGB_frame = av_frame_alloc();
@@ -71,24 +77,25 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
 
 
     /**audio**/
-    auto in_audio_channels = av_get_channel_layout_nb_channels(audio_codec_ctx->channels);
+    auto in_audio_channels = av_get_channel_layout_nb_channels(audio_codec_ctx->channel_layout);
     auto in_audio_sample_fmt = audio_codec_ctx->sample_fmt;
     auto in_audio_samplerate = audio_codec_ctx->sample_rate;
+    auto in_audio_channel_layout = audio_codec_ctx->channel_layout;
 
     out_audio_channels = in_audio_channels;
     out_audio_samplerate = in_audio_samplerate;
     out_audio_sample_fmt = AV_SAMPLE_FMT_S16;
+    out_audio_channel_layout = audio_codec_ctx->channel_layout;
 
     out_audio_length = av_samples_get_buffer_size(NULL, out_audio_channels, NB_SAMPLES, out_audio_sample_fmt, 1);
-    swr_ctx = swr_alloc();
-    swr_ctx = swr_alloc_set_opts(swr_ctx,
-                                 out_audio_channels, out_audio_sample_fmt, out_audio_samplerate,
-                                 in_audio_channels, in_audio_sample_fmt, in_audio_samplerate,
-                                 0, NULL);
+
+    swr_ctx = swr_alloc_set_opts(NULL,
+                                 out_audio_channel_layout, out_audio_sample_fmt, out_audio_samplerate,
+                                 in_audio_channel_layout, in_audio_sample_fmt, in_audio_samplerate,
+                                 0, 0);
     swr_init(swr_ctx);
 
     av_dump_format(av_fmt_ctx, 0, m_video_path, 0);
-
 
 }
 
@@ -116,6 +123,7 @@ FFrame *FFmpegCapturer::captureFrame() {
     if (packet->stream_index == video_index) {
 
         ret = avcodec_decode_video2(video_codec_ctx, video_frame, &got_picture, packet);
+//        ret = avcodec_send_packet(video_codec_ctx, packet);
         if (ret < 0) {
             printf("decode video failed\n");
         }
@@ -188,23 +196,24 @@ FFrame *FFmpegCapturer::captureFrame() {
 
 //            todo
             uint8_t *out_buffer = (uint8_t *) av_mallocz(MAX_AUDIO_FRAME_SZIE * 2);
-            swr_convert(swr_ctx, &out_buffer, MAX_AUDIO_FRAME_SZIE,
-                        (const uint8_t **) (audio_frame->data), audio_frame->nb_samples);
+            int len = swr_convert(swr_ctx, &out_buffer, MAX_AUDIO_FRAME_SZIE,
+                                  (const uint8_t **) (audio_frame->data), audio_frame->nb_samples);
 
             fframe->hasAudio = true;
             fframe->data = out_buffer;
             fframe->nChannels = out_audio_channels;
             fframe->sampleRate = out_audio_samplerate;
 
-            fframe->length = out_audio_length;
+            fframe->length = av_samples_get_buffer_size(0, out_audio_channels, len, out_audio_sample_fmt, 1);
 
             fframe->pts = current_pts + pts;
 
-            memcpy(fframe->data, audio_frame->data[0], MAX_AUDIO_FRAME_SZIE * 2);
+            memcpy(fframe->data, audio_frame->data[0], fframe->length);
 
         }
     }
 //    current_pts += pts;
+    av_packet_unref(packet);
 
     return fframe;
 

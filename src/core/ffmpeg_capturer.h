@@ -65,6 +65,7 @@ private:
     /**audio**/
     int out_audio_samplerate = 0;
     int out_audio_channels = 0;
+    uint64_t out_audio_channel_layout;
     AVSampleFormat out_audio_sample_fmt = AV_SAMPLE_FMT_S16;
     int out_audio_length;
 
