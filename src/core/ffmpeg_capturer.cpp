@@ -208,7 +208,7 @@ FFrame *FFmpegCapturer::captureFrame() {
 
             fframe->pts = current_pts + pts;
 
-            memcpy(fframe->data, audio_frame->data[0], fframe->length);
+            memcpy(fframe->data, out_buffer, fframe->length);
 
         }
     }

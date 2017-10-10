@@ -106,7 +106,6 @@ void VideoPlayer::capture_runnable() {
 
             mutex.lock();
             video_frame_queue->push(frame);
-//            printf("push frame %d <-> %d \n", frame->hasVideo, frame->hasAudio);
             mutex.unlock();
 
         } else {
@@ -121,8 +120,8 @@ void VideoPlayer::display_runnable() {
     while (m_state != STATE_STOP) {
 
         if (video_frame_queue->size() > 0) {
-
             mutex.lock();
+
             auto frame = video_frame_queue->front();
 
             if (frame->hasVideo) {
@@ -134,19 +133,17 @@ void VideoPlayer::display_runnable() {
 
                 emit display(frame->data, frame->width, frame->height);
 
-
                 time = frame->pts;
-
             }
 
             if (frame->hasAudio) {
-                printf("frame has audio %10f\n", frame->pts);
 
                 if (audio_stream != NULL && audio_stream != nullptr) {
 
-                    printf("audio_stream is good\n");
                     audio_stream->write((const char *) frame->data, frame->length);
+
                 } else {
+
                     printf("audio_stream is null\n");
                 }
             }
