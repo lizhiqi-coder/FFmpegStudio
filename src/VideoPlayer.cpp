@@ -12,6 +12,7 @@ VideoPlayer::VideoPlayer(char *path) {
     connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)));
     video_frame_queue = new std::queue<FFrame *>();
     audio_frame_queue = new std::queue<FFrame *>();
+    initAudioPlayer(44100, 2);
 }
 
 VideoPlayer::~VideoPlayer() {
@@ -61,7 +62,7 @@ void VideoPlayer::play() {
         capture_thread->detach();
         display_thread->detach();
 
-        this->initAudioPlayer(44100, 2);
+//        this->initAudioPlayer(44100, 2);
     }
 
     do_play = true;
