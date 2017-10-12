@@ -69,6 +69,14 @@ private:
     AVSampleFormat out_audio_sample_fmt = AV_SAMPLE_FMT_S16;
     int out_audio_length;
 
+public:
+    int getSamplerate(){
+        return out_audio_samplerate;
+    }
+
+    int getChannels(){
+        return out_audio_channels;
+    }
 
 };
 

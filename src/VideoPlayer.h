@@ -45,6 +45,7 @@ public:
     int wanted_freq;
     int wanted_samples;
     int wanted_channels;
+    int samplerate;
     int picture_size, picture_rindex, picture_windex;
     unsigned int audio_buf_size;
     unsigned int audio_buf_index;
@@ -93,6 +94,8 @@ private:
     void initUI();
 
     void initAudioPlayer(int samplerate, int channels);
+
+    void initVideoState();
 
     void capture_runnable();
 
