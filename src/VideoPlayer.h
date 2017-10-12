@@ -96,7 +96,7 @@ private:
 
     void capture_runnable();
 
-    void display_runnable();
+    void video_runnable();
 
     void audio_runnable();
 
@@ -118,9 +118,9 @@ private:
     std::queue<FFrame *> *audio_frame_queue;
 
     std::thread *capture_thread;
-    std::thread *display_thread;
+    std::thread *video_thread;
     std::thread *audio_thread;
-    std::mutex mutex;
+    std::mutex v_mutex;
     std::mutex a_mutex;
 
 };

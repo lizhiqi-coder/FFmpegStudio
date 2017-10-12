@@ -30,9 +30,9 @@ VideoPlayer::~VideoPlayer() {
         delete capture_thread;
         capture_thread = nullptr;
     }
-    if (display_thread != nullptr) {
-        delete display_thread;
-        display_thread = nullptr;
+    if (video_thread != nullptr) {
+        delete video_thread;
+        video_thread = nullptr;
     }
     if (audio_thread != nullptr) {
         delete audio_thread;
@@ -56,16 +56,16 @@ void VideoPlayer::play() {
         if (capture_thread != nullptr) {
             delete capture_thread;
         }
-        if (display_thread != nullptr) {
-            delete display_thread;
+        if (video_thread != nullptr) {
+            delete video_thread;
         }
 
         m_state = STATE_PLAYING;
         capture_thread = new std::thread(VideoPlayer::capture_runnable, this);
-        display_thread = new std::thread(VideoPlayer::display_runnable, this);
+        video_thread = new std::thread(VideoPlayer::video_runnable, this);
         audio_thread = new std::thread(VideoPlayer::audio_runnable, this);
         capture_thread->detach();
-        display_thread->detach();
+        video_thread->detach();
         audio_thread->detach();
 
     }
@@ -111,9 +111,9 @@ void VideoPlayer::capture_runnable() {
         if (frame != NULL) {
             if (frame->hasVideo) {
 
-                mutex.lock();
+                v_mutex.lock();
                 video_frame_queue->push(frame);
-                mutex.unlock();
+                v_mutex.unlock();
             }
 
             if (frame->hasAudio) {
@@ -128,12 +128,12 @@ void VideoPlayer::capture_runnable() {
     }
 }
 
-void VideoPlayer::display_runnable() {
+void VideoPlayer::video_runnable() {
     double delay = 0;//second
     while (m_state != STATE_STOP) {
 
         if (video_frame_queue->size() > 0) {
-            mutex.lock();
+            v_mutex.lock();
 
             auto frame = video_frame_queue->front();
 
@@ -153,7 +153,7 @@ void VideoPlayer::display_runnable() {
             }
 
             video_frame_queue->pop();
-            mutex.unlock();
+            v_mutex.unlock();
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
