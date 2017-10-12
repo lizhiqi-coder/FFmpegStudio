@@ -6,7 +6,8 @@
 #define FFMPEGSTUDIO_FFMPEG_FRAME_H
 
 extern "C" {
-#include <libavutil/avutil.h>
+#include "libavformat/avformat.h"
+#include "libavutil/avutil.h"
 };
 
 class FFImage {
@@ -87,6 +88,11 @@ typedef unsigned char BYTE;
 class FFrame {
 
 public:
+
+    FFrame();
+
+    void copy(FFrame *);
+
     ~FFrame() {
 
         if (data != nullptr) {

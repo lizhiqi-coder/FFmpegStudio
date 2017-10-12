@@ -34,7 +34,8 @@ SOURCES += main.cpp\
             src/core/camera_client.cpp\
             src/opengl/gl_widget.cpp\
             src/VideoPlayer.cpp\
-            src/core/ffmpeg_capturer.cpp
+            src/core/ffmpeg_capturer.cpp\
+            src/core/ffmpeg_frame.cpp
 
 HEADERS  += mainwindow.h \
             src/core/h264_decoder.h \
@@ -42,7 +43,8 @@ HEADERS  += mainwindow.h \
             src/core/camera_client.h \
             src/opengl/gl_widget.h \
             src/VideoPlayer.h   \
-            src/core/ffmpeg_capturer.h
+            src/core/ffmpeg_capturer.h\
+            src/core/ffmpeg_frame.h
 
 
 FORMS    += mainwindow.ui \

@@ -131,6 +131,7 @@ void VideoPlayer::capture_runnable() {
 
 void VideoPlayer::video_runnable() {
     double delay = 0;//second
+
     while (m_state != STATE_STOP) {
 
         if (video_frame_queue->size() > 0) {
@@ -164,38 +165,34 @@ void VideoPlayer::video_runnable() {
 void VideoPlayer::audio_runnable() {
     double delay = 0;
     double last_pts = 0;
+    FFrame *copyFrame = new FFrame();
+
     while (m_state != STATE_STOP) {
         if (audio_frame_queue->size() > 0) {
             a_mutex.lock();
             auto frame = audio_frame_queue->front();
 
-//                delay = frame->pts - last_pts;
-//                if (delay <= 0 || delay >= 1.0) {
-//                    delay = (double) 0.041f;
-//                }
+            copyFrame->copy(frame);
+            delete frame;
+            audio_frame_queue->pop();
+            a_mutex.unlock();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(41));
+            std::this_thread::sleep_for(std::chrono::milliseconds(21));
 
             if (audio_stream != NULL && audio_stream != nullptr) {
 
-                audio_stream->write((const char *) frame->data, frame->length);
-                delete frame;
-                frame = nullptr;
+                audio_stream->write((const char *) copyFrame->data, copyFrame->length);
 
             } else {
-
                 printf("audio_stream is null\n");
             }
 
-//                last_pts = frame->pts;
-
-            audio_frame_queue->pop();
-            a_mutex.unlock();
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
     }
+    delete copyFrame;
 }
 
 void VideoPlayer::initUI() {
