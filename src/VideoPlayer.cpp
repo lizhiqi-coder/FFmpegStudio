@@ -108,6 +108,9 @@ void VideoPlayer::capture_runnable() {
             continue;
         }
 
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+
         auto frame = capturer->captureFrame();
         if (frame != NULL) {
             if (frame->hasVideo) {
@@ -142,6 +145,8 @@ void VideoPlayer::video_runnable() {
             copyFrame->copy(frame);
             delete frame;
 
+            video_frame_queue->pop();
+            v_mutex.unlock();
 
             delay = copyFrame->pts - video_state.frame_last_pts;
             if (delay <= 0 || delay >= 1.0) {
@@ -154,8 +159,6 @@ void VideoPlayer::video_runnable() {
             video_state.frame_last_delay = delay;
             video_state.frame_last_pts = copyFrame->pts;
 
-            video_frame_queue->pop();
-            v_mutex.unlock();
 
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
