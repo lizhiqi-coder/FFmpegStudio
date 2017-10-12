@@ -163,11 +163,11 @@ FFrame *FFmpegCapturer::captureFrame() {
             fframe->hasVideo = true;
             fframe->width = video_codec_ctx->width;
             fframe->height = video_codec_ctx->height;
-            fframe->length = video_RGB_frame->linesize[0];
+            fframe->length = rgb_picture_size;
             fframe->data = (BYTE *) av_mallocz(rgb_picture_size);
 
             fframe->pts = current_pts + pts;
-
+//            printf("frame linesize %d length %d \n", video_RGB_frame->linesize[0], rgb_picture_size);
             memcpy(fframe->data, video_RGB_frame->data[0], rgb_picture_size);
         }
     }

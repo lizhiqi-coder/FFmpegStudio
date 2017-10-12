@@ -132,33 +132,38 @@ void VideoPlayer::capture_runnable() {
 void VideoPlayer::video_runnable() {
     double delay = 0;//second
 
+    FFrame *copyFrame = new FFrame();
     while (m_state != STATE_STOP) {
 
         if (video_frame_queue->size() > 0) {
             v_mutex.lock();
 
             auto frame = video_frame_queue->front();
+            copyFrame->copy(frame);
+            delete frame;
 
-            delay = frame->pts - video_state.frame_last_pts;
+
+            delay = copyFrame->pts - video_state.frame_last_pts;
             if (delay <= 0 || delay >= 1.0) {
                 delay = video_state.frame_last_delay;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (delay * 1000)));
 //                printf("frame pts is %10f,delay is%15f\n", frame->pts, delay);
-            emit display(frame->data, frame->width, frame->height);
+            emit display(copyFrame->data, copyFrame->width, copyFrame->height);
 
             video_state.frame_last_delay = delay;
-            video_state.frame_last_pts = frame->pts;
-
+            video_state.frame_last_pts = copyFrame->pts;
 
             video_frame_queue->pop();
             v_mutex.unlock();
+
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
 
     }
+    delete copyFrame;
 
 }
 
