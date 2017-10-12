@@ -23,7 +23,7 @@ extern "C" {
 #include "core/ffmpeg_capturer.h"
 #include "core/ffmpeg_frame.h"
 
-#define QUEUE_MAX_SIZE 8
+#define QUEUE_MAX_SIZE 30
 #define AV_SYNC_THRESHOLD 0.01
 
 

@@ -4,6 +4,8 @@
 
 #include "VideoPlayer.h"
 
+#define DELAY(time) std::this_thread::sleep_for(std::chrono::milliseconds(time))
+
 VideoPlayer::VideoPlayer(char *path) {
     video_path = path;
     capturer = new FFmpegCapturer(video_path);
@@ -103,24 +105,28 @@ void VideoPlayer::capture_runnable() {
         }
         if (do_pause) {
 //            毫秒
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            DELAY(100);
             m_state = STATE_PAUSE;
             continue;
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
 
         auto frame = capturer->captureFrame();
         if (frame != NULL) {
             if (frame->hasVideo) {
 
+                if (video_frame_queue->size() >= QUEUE_MAX_SIZE) {
+                    DELAY(50);
+                }
                 v_mutex.lock();
                 video_frame_queue->push(frame);
                 v_mutex.unlock();
             }
 
             if (frame->hasAudio) {
+
+                if (audio_frame_queue->size() >= QUEUE_MAX_SIZE) {
+                    DELAY(50);
+                }
                 a_mutex.lock();
                 audio_frame_queue->push(frame);
                 a_mutex.unlock();
@@ -152,7 +158,7 @@ void VideoPlayer::video_runnable() {
             if (delay <= 0 || delay >= 1.0) {
                 delay = video_state.frame_last_delay;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (delay * 1000)));
+            DELAY((int64_t) (delay * 1000));
 //                printf("frame pts is %10f,delay is%15f\n", frame->pts, delay);
             emit display(copyFrame->data, copyFrame->width, copyFrame->height);
 
@@ -161,7 +167,7 @@ void VideoPlayer::video_runnable() {
 
 
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            DELAY(100);
             continue;
         }
 
@@ -185,7 +191,7 @@ void VideoPlayer::audio_runnable() {
             audio_frame_queue->pop();
             a_mutex.unlock();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(21));
+            DELAY(21);
 
             if (audio_stream != NULL && audio_stream != nullptr) {
 
@@ -196,7 +202,7 @@ void VideoPlayer::audio_runnable() {
             }
 
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            DELAY(100);
             continue;
         }
     }
