@@ -25,6 +25,38 @@ extern "C" {
 
 #define QUEUE_MAX_SIZE 8
 
+
+class PacketQueue {
+
+public:
+    AVPacketList *first_pkt, *last_pkt;
+    int nb_packets;
+    int size;
+    std::mutex mutex;
+};
+
+
+class VideoState {
+public:
+    int video_index;
+    int audio_index;
+    int frame_finished;
+    int wanted_freq;
+    int wanted_samples;
+    int wanted_channels;
+    int picture_size, picture_rindex, picture_windex;
+    unsigned int audio_buf_size;
+    unsigned int audio_buf_index;
+    double frame_timer;
+    double frame_last_pts = 0;
+    double now_video_pts;
+    double frame_last_delay = 0;
+    double video_clock;
+    double audio_clock = 0;
+
+    int bytes_per_sec;
+};
+
 class VideoPlayer : public QWidget {
 
 Q_OBJECT
@@ -59,11 +91,13 @@ private:
 
     void initUI();
 
-    void initAudioPlayer(int samplerate,int channels);
+    void initAudioPlayer(int samplerate, int channels);
 
     void capture_runnable();
 
     void display_runnable();
+
+    double get_audio_clock(VideoState *vs);
 
 private:
     char *video_path;
@@ -71,6 +105,8 @@ private:
     GLWidget *surfaceView;
     QAudioOutput *audio;
     QIODevice *audio_stream;
+
+    VideoState video_state;
 
 
 

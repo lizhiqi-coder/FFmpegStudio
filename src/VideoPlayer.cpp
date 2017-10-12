@@ -62,7 +62,6 @@ void VideoPlayer::play() {
         capture_thread->detach();
         display_thread->detach();
 
-//        this->initAudioPlayer(44100, 2);
     }
 
     do_play = true;
@@ -116,8 +115,7 @@ void VideoPlayer::capture_runnable() {
 }
 
 void VideoPlayer::display_runnable() {
-    int64_t delta = 0;//微秒
-    double time = 0;
+    double delay = 0;//second
     while (m_state != STATE_STOP) {
 
         if (video_frame_queue->size() > 0) {
@@ -127,14 +125,17 @@ void VideoPlayer::display_runnable() {
 
             if (frame->hasVideo) {
 
-                if (time < frame->pts) {
-                    delta = (frame->pts - time) * 1000;
+                delay = frame->pts - video_state.frame_last_pts;
+                if (delay <= 0 || delay >= 1.0) {
+                    delay = video_state.frame_last_delay;
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(delta));
-
+                std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (delay * 1000)));
+//                printf("frame pts is %10f,delay is%15f\n", frame->pts, delay);
                 emit display(frame->data, frame->width, frame->height);
 
-                time = frame->pts;
+                video_state.frame_last_delay = delay;
+                video_state.frame_last_pts = frame->pts;
+
             }
 
             if (frame->hasAudio) {
@@ -197,4 +198,19 @@ void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
     audio = new QAudioOutput(audioFormat, QApplication::instance());
     audio_stream = audio->start();
     printf("audio start\n");
+}
+
+double VideoPlayer::get_audio_clock(VideoState *vs) {
+
+    double pts;
+    int hw_buf_size;
+
+    pts = vs->audio_clock;
+    hw_buf_size = vs->audio_buf_size - vs->audio_buf_index;
+
+    if (vs->bytes_per_sec) {
+        pts = (double) hw_buf_size / vs->bytes_per_sec;
+    }
+
+    return pts;
 }
