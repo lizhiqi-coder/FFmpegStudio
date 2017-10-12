@@ -34,6 +34,10 @@ VideoPlayer::~VideoPlayer() {
         delete display_thread;
         display_thread = nullptr;
     }
+    if (audio_thread != nullptr) {
+        delete audio_thread;
+        audio_thread = nullptr;
+    }
 
     delete video_frame_queue;
     delete audio_frame_queue;
@@ -42,6 +46,7 @@ VideoPlayer::~VideoPlayer() {
 
     av_free(audio);
     av_free(audio_stream);
+    av_free(video_path);
 }
 
 void VideoPlayer::play() {
@@ -58,9 +63,10 @@ void VideoPlayer::play() {
         m_state = STATE_PLAYING;
         capture_thread = new std::thread(VideoPlayer::capture_runnable, this);
         display_thread = new std::thread(VideoPlayer::display_runnable, this);
-
+        audio_thread = new std::thread(VideoPlayer::audio_runnable, this);
         capture_thread->detach();
         display_thread->detach();
+        audio_thread->detach();
 
     }
 
@@ -103,10 +109,18 @@ void VideoPlayer::capture_runnable() {
 
         auto frame = capturer->captureFrame();
         if (frame != NULL) {
+            if (frame->hasVideo) {
 
-            mutex.lock();
-            video_frame_queue->push(frame);
-            mutex.unlock();
+                mutex.lock();
+                video_frame_queue->push(frame);
+                mutex.unlock();
+            }
+
+            if (frame->hasAudio) {
+                a_mutex.lock();
+                audio_frame_queue->push(frame);
+                a_mutex.unlock();
+            }
 
         } else {
             m_state = STATE_STOP;
@@ -138,6 +152,24 @@ void VideoPlayer::display_runnable() {
 
             }
 
+            video_frame_queue->pop();
+            mutex.unlock();
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+
+    }
+
+}
+
+void VideoPlayer::audio_runnable() {
+
+    while (m_state != STATE_STOP) {
+        if (audio_frame_queue->size() > 0) {
+            a_mutex.lock();
+            auto frame = audio_frame_queue->front();
+
             if (frame->hasAudio) {
 
                 if (audio_stream != NULL && audio_stream != nullptr) {
@@ -151,16 +183,15 @@ void VideoPlayer::display_runnable() {
                     printf("audio_stream is null\n");
                 }
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(41));
 
-            video_frame_queue->pop();
-            mutex.unlock();
+            audio_frame_queue->pop();
+            a_mutex.unlock();
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
-
     }
-
 }
 
 void VideoPlayer::initUI() {
@@ -214,3 +245,4 @@ double VideoPlayer::get_audio_clock(VideoState *vs) {
 
     return pts;
 }
+

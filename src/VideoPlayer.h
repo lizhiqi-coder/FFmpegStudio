@@ -24,6 +24,7 @@ extern "C" {
 #include "core/ffmpeg_frame.h"
 
 #define QUEUE_MAX_SIZE 8
+#define AV_SYNC_THRESHOLD 0.01
 
 
 class PacketQueue {
@@ -97,6 +98,8 @@ private:
 
     void display_runnable();
 
+    void audio_runnable();
+
     double get_audio_clock(VideoState *vs);
 
 private:
@@ -109,7 +112,6 @@ private:
     VideoState video_state;
 
 
-
 private:
 
     std::queue<FFrame *> *video_frame_queue;
@@ -117,7 +119,9 @@ private:
 
     std::thread *capture_thread;
     std::thread *display_thread;
+    std::thread *audio_thread;
     std::mutex mutex;
+    std::mutex a_mutex;
 
 };
 
