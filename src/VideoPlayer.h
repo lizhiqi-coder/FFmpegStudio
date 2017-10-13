@@ -25,6 +25,7 @@ extern "C" {
 
 #define QUEUE_MAX_SIZE 30
 #define AV_SYNC_THRESHOLD 0.01
+#define AV_NOSYNC_THRESHOLD 10.0
 
 
 class PacketQueue {

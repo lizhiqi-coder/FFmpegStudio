@@ -65,10 +65,10 @@ void VideoPlayer::play() {
 
         m_state = STATE_PLAYING;
         capture_thread = new std::thread(VideoPlayer::capture_runnable, this);
-        video_thread = new std::thread(VideoPlayer::video_runnable, this);
+//        video_thread = new std::thread(VideoPlayer::video_runnable, this);
         audio_thread = new std::thread(VideoPlayer::audio_runnable, this);
         capture_thread->detach();
-        video_thread->detach();
+//        video_thread->detach();
         audio_thread->detach();
 
     }
@@ -113,12 +113,12 @@ void VideoPlayer::capture_runnable() {
         auto frame = capturer->captureFrame();
         if (frame != NULL) {
             if (frame->hasVideo) {
-
+                delete frame;
                 if (video_frame_queue->size() >= QUEUE_MAX_SIZE) {
                     DELAY(50);
                 }
                 v_mutex.lock();
-                video_frame_queue->push(frame);
+//                video_frame_queue->push(frame);
                 v_mutex.unlock();
             }
 
@@ -158,12 +158,29 @@ void VideoPlayer::video_runnable() {
             if (delay <= 0 || delay >= 1.0) {
                 delay = video_state.frame_last_delay;
             }
-            DELAY((int64_t) (delay * 1000));
-//                printf("frame pts is %10f,delay is%15f\n", frame->pts, delay);
-            emit display(copyFrame->data, copyFrame->width, copyFrame->height);
 
             video_state.frame_last_delay = delay;
             video_state.frame_last_pts = copyFrame->pts;
+
+
+            //同步视频到音频
+            double ref_clock = get_audio_clock(&video_state);
+            double diff = copyFrame->pts - ref_clock;
+            double threshold = (delay > AV_SYNC_THRESHOLD) ? delay : AV_NOSYNC_THRESHOLD;
+
+            if (fabs(diff) < AV_NOSYNC_THRESHOLD) {
+
+                if (diff <= -threshold) {
+                    delay = 0;
+                }
+                if (diff >= threshold) {
+                    delay *= 2;
+                }
+                video_state.frame_timer += delay;
+            }
+            DELAY((int64_t) (delay * 1000));
+//                printf("frame pts is %10f,delay is%15f\n", frame->pts, delay);
+            emit display(copyFrame->data, copyFrame->width, copyFrame->height);
 
 
         } else {
@@ -191,7 +208,12 @@ void VideoPlayer::audio_runnable() {
             audio_frame_queue->pop();
             a_mutex.unlock();
 
-            DELAY(21);
+            delay = copyFrame->pts - last_pts;
+            last_pts = copyFrame->pts;
+//            printf("audio frame pts %10f,delay is %10f\n", copyFrame->pts, delay);
+            DELAY((int64_t) (delay * 1000));
+
+            video_state.audio_clock = copyFrame->pts;
 
             if (audio_stream != NULL && audio_stream != nullptr) {
 
