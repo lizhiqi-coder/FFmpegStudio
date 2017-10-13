@@ -171,16 +171,18 @@ void VideoPlayer::video_runnable() {
 
             if (fabs(diff) < AV_NOSYNC_THRESHOLD) {
 
-                if (diff <= -threshold) {
+                if (diff <= -threshold) {// video slow
                     delay = 0;
                 }
-                if (diff >= threshold) {
+                if (diff >= threshold) {//video quick
                     delay *= 2;
                 }
                 video_state.frame_timer += delay;
             }
+
             DELAY((int64_t) (delay * 1000));
-//                printf("frame pts is %10f,delay is%15f\n", frame->pts, delay);
+
+//            printf("video frame pts is %10f,delay is%15f\n", frame->pts, delay);
             emit display(copyFrame->data, copyFrame->width, copyFrame->height);
 //            emit displayFrame(copyFrame);
 
@@ -216,6 +218,7 @@ void VideoPlayer::audio_runnable() {
             DELAY((int64_t) (delay * 1000));
 
             video_state.audio_clock = copyFrame->pts;
+            video_state.audio_buf_size = copyFrame->length;
 
             if (audio_stream != NULL && audio_stream != nullptr) {
 
@@ -276,7 +279,8 @@ double VideoPlayer::get_audio_clock(VideoState *vs) {
     int hw_buf_size;//一块音频中尚未播放的缓存大小
 
     pts = vs->audio_clock;
-    hw_buf_size = vs->audio_buf_size - vs->audio_buf_index;
+//    hw_buf_size = vs->audio_buf_size - vs->audio_buf_index;
+    hw_buf_size = vs->audio_buf_size / 2;
 
     if (vs->bytes_per_sec) {
         pts -= (double) hw_buf_size / vs->bytes_per_sec;
