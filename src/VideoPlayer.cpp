@@ -185,9 +185,8 @@ void VideoPlayer::video_runnable() {
 
 //            printf("video frame pts is %10f,delay is%15f\n", frame->pts, delay);
 //            emit display(copyFrame->data, copyFrame->width, copyFrame->height);
-
+            //发射阻塞信号，在 slot 里释放
             emit displayFrame(copyFrame);
-
 
 
         } else {
@@ -226,6 +225,8 @@ void VideoPlayer::audio_runnable() {
             if (audio_stream != NULL && audio_stream != nullptr) {
 
                 audio_stream->write((const char *) copyFrame->data, copyFrame->length);
+
+                free(copyFrame->data);
 
             } else {
                 printf("audio_stream is null\n");
