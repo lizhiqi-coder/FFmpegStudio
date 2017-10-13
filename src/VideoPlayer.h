@@ -23,6 +23,8 @@ extern "C" {
 #include "core/ffmpeg_capturer.h"
 #include "core/ffmpeg_frame.h"
 
+#include "windows/video_controller_bar.h"
+
 #define QUEUE_MAX_SIZE 30
 #define AV_SYNC_THRESHOLD 0.01
 #define AV_NOSYNC_THRESHOLD 10.0
@@ -112,6 +114,7 @@ private:
     char *video_path;
     FFmpegCapturer *capturer;
     GLWidget *surfaceView;
+    VideoControllerBar *controllerBar;
     QAudioOutput *audio;
     QIODevice *audio_stream;
 

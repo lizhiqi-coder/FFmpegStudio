@@ -243,9 +243,10 @@ void VideoPlayer::audio_runnable() {
 void VideoPlayer::initUI() {
 
     surfaceView = new GLWidget;
-    auto layout = new QVBoxLayout;
+    controllerBar = new VideoControllerBar;
+     auto layout = new QVBoxLayout;
     layout->addWidget(surfaceView);
-
+    layout->addWidget(controllerBar);
     setLayout(layout);
 
 }

@@ -88,6 +88,8 @@ void GLWidget::cleanup() {
     if (m_program > 0) {
         glDeleteProgram(m_program);
     }
+
+    free(texture_buf);
 }
 
 void GLWidget::paintGL() {

@@ -35,8 +35,8 @@ SOURCES += main.cpp\
             src/opengl/gl_widget.cpp\
             src/VideoPlayer.cpp\
             src/core/ffmpeg_capturer.cpp\
-            src/core/ffmpeg_frame.cpp
-
+            src/core/ffmpeg_frame.cpp\
+            src/windows/video_controller_bar.cpp
 HEADERS  += mainwindow.h \
             src/core/h264_decoder.h \
             src/core/h264_frame.h   \
@@ -44,11 +44,14 @@ HEADERS  += mainwindow.h \
             src/opengl/gl_widget.h \
             src/VideoPlayer.h   \
             src/core/ffmpeg_capturer.h\
-            src/core/ffmpeg_frame.h
+            src/core/ffmpeg_frame.h\
+            src/windows/video_controller_bar.h
+
 
 
 FORMS    += mainwindow.ui \
-    res/ui/openglwindow.ui
+    res/ui/openglwindow.ui \
+    res/ui/video_controller_bar.ui
 
 RESOURCES += application.qrc \
 
