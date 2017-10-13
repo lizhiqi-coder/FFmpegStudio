@@ -72,6 +72,8 @@ signals:
 
     void display(void *data, int w, int h);
 
+    void displayFrame(FFrame *frame);
+
 public:
     void play();
 

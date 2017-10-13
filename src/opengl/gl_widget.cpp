@@ -127,6 +127,25 @@ void GLWidget::onRender(GLuint texture) {
     update();
 }
 
+void GLWidget::onRenderFrame(FFrame *frame) {
+
+    printf("onRenderFrame\n");
+    free(texture_buf);
+    texture_buf = static_cast<BYTE *>(malloc(frame->length * sizeof(BYTE)));
+    memset(texture_buf, 0, frame->length);
+    texture_width = frame->width;
+    texture_height = frame->height;
+    memcpy(texture_buf, frame->data, frame->length);
+    free(frame->data);
+
+
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+    glViewport(0, 0, texture_width, texture_height);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_width, texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_buf);
+    update();
+}
+
+
 void GLWidget::onRender(void *texture_data, int width, int height) {
 
     glBindTexture(GL_TEXTURE_2D, m_texture);
@@ -186,6 +205,7 @@ GLint GLWidget::compileShader(GLenum type, const char *shader_code) {
 GLWidget::~GLWidget() {
     cleanup();
 }
+
 
 
 

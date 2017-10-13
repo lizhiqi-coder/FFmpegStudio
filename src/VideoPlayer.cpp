@@ -12,6 +12,7 @@ VideoPlayer::VideoPlayer(char *path) {
     initUI();
 
     connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)));
+    connect(this, SIGNAL(displayFrame(FFrame * )), surfaceView, SLOT(onRenderFrame(FFrame * )));
     video_frame_queue = new std::queue<FFrame *>();
     audio_frame_queue = new std::queue<FFrame *>();
     initAudioPlayer(44100, 2);
@@ -65,10 +66,10 @@ void VideoPlayer::play() {
 
         m_state = STATE_PLAYING;
         capture_thread = new std::thread(VideoPlayer::capture_runnable, this);
-//        video_thread = new std::thread(VideoPlayer::video_runnable, this);
+        video_thread = new std::thread(VideoPlayer::video_runnable, this);
         audio_thread = new std::thread(VideoPlayer::audio_runnable, this);
         capture_thread->detach();
-//        video_thread->detach();
+        video_thread->detach();
         audio_thread->detach();
 
     }
@@ -113,12 +114,12 @@ void VideoPlayer::capture_runnable() {
         auto frame = capturer->captureFrame();
         if (frame != NULL) {
             if (frame->hasVideo) {
-                delete frame;
+
                 if (video_frame_queue->size() >= QUEUE_MAX_SIZE) {
                     DELAY(50);
                 }
                 v_mutex.lock();
-//                video_frame_queue->push(frame);
+                video_frame_queue->push(frame);
                 v_mutex.unlock();
             }
 
@@ -181,6 +182,7 @@ void VideoPlayer::video_runnable() {
             DELAY((int64_t) (delay * 1000));
 //                printf("frame pts is %10f,delay is%15f\n", frame->pts, delay);
             emit display(copyFrame->data, copyFrame->width, copyFrame->height);
+//            emit displayFrame(copyFrame);
 
 
         } else {
@@ -271,13 +273,13 @@ void VideoPlayer::initAudioPlayer(int samplerate, int channels) {
 double VideoPlayer::get_audio_clock(VideoState *vs) {
 
     double pts;
-    int hw_buf_size;
+    int hw_buf_size;//一块音频中尚未播放的缓存大小
 
     pts = vs->audio_clock;
     hw_buf_size = vs->audio_buf_size - vs->audio_buf_index;
 
     if (vs->bytes_per_sec) {
-        pts = (double) hw_buf_size / vs->bytes_per_sec;
+        pts -= (double) hw_buf_size / vs->bytes_per_sec;
     }
 
     return pts;

@@ -9,6 +9,7 @@
 #include <QtOpenGL/QtOpenGL>
 #include <QtWidgets/QOpenGLWidget>
 #include <QtGui/QOpenGLFunctions>
+#include "ffmpeg_frame.h"
 
 #define KEY_ATTR_POSITION  "aPosition"
 #define KEY_ATTR_TEXCOORD "aTextureCoord"
@@ -49,6 +50,8 @@ public slots:
 
     void onRender(void *texture_data, int width, int height);
 
+    void onRenderFrame(FFrame *frame);
+
     void cleanup();
 
 private:
@@ -58,7 +61,9 @@ private:
     GLint handle_position;
     GLint handle_tex_coord;
     GLint handle_texture;
-
+    BYTE *texture_buf;
+    int texture_width;
+    int texture_height;
 private:
     const float posCoord[8] = {
             -1, 1,
