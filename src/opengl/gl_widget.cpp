@@ -129,7 +129,6 @@ void GLWidget::onRender(GLuint texture) {
 
 void GLWidget::onRenderFrame(FFrame *frame) {
 
-    printf("onRenderFrame\n");
     free(texture_buf);
     texture_buf = static_cast<BYTE *>(malloc(frame->length * sizeof(BYTE)));
     memset(texture_buf, 0, frame->length);
@@ -137,7 +136,6 @@ void GLWidget::onRenderFrame(FFrame *frame) {
     texture_height = frame->height;
     memcpy(texture_buf, frame->data, frame->length);
     free(frame->data);
-
 
     glBindTexture(GL_TEXTURE_2D, m_texture);
     glViewport(0, 0, texture_width, texture_height);

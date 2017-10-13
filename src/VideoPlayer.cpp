@@ -10,9 +10,10 @@ VideoPlayer::VideoPlayer(char *path) {
     video_path = path;
     capturer = new FFmpegCapturer(video_path);
     initUI();
-
-    connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)));
-    connect(this, SIGNAL(displayFrame(FFrame * )), surfaceView, SLOT(onRenderFrame(FFrame * )));
+    connect(this, SIGNAL(display(void * , int, int)), surfaceView, SLOT(onRender(void * , int, int)),
+            Qt::ConnectionType::BlockingQueuedConnection);
+    connect(this, SIGNAL(displayFrame(FFrame * )), surfaceView, SLOT(onRenderFrame(FFrame * )),
+            Qt::ConnectionType::BlockingQueuedConnection);
     video_frame_queue = new std::queue<FFrame *>();
     audio_frame_queue = new std::queue<FFrame *>();
     initAudioPlayer(44100, 2);
@@ -125,7 +126,7 @@ void VideoPlayer::capture_runnable() {
 
             if (frame->hasAudio) {
 
-                if (audio_frame_queue->size() >= QUEUE_MAX_SIZE) {
+                if (audio_frame_queue->size() >= QUEUE_MAX_SIZE * 2) {
                     DELAY(50);
                 }
                 a_mutex.lock();
@@ -183,8 +184,10 @@ void VideoPlayer::video_runnable() {
             DELAY((int64_t) (delay * 1000));
 
 //            printf("video frame pts is %10f,delay is%15f\n", frame->pts, delay);
-            emit display(copyFrame->data, copyFrame->width, copyFrame->height);
-//            emit displayFrame(copyFrame);
+//            emit display(copyFrame->data, copyFrame->width, copyFrame->height);
+
+            emit displayFrame(copyFrame);
+
 
 
         } else {
