@@ -243,8 +243,10 @@ void VideoPlayer::audio_runnable() {
 void VideoPlayer::initUI() {
 
     surfaceView = new GLWidget;
+    surfaceView->setMinimumSize(capturer->getWidth(), capturer->getHeight());
+
     controllerBar = new VideoControllerBar;
-     auto layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     layout->addWidget(surfaceView);
     layout->addWidget(controllerBar);
     setLayout(layout);

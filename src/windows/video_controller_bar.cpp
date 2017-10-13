@@ -5,7 +5,7 @@
 #include "video_controller_bar.h"
 
 VideoControllerBar::VideoControllerBar(QWidget *parent) :
-        QWidget(parent), ui(new Ui::Form) {
+        QWidget(parent), ui(new Ui::videoController) {
     ui->setupUi(this);
 }
 

@@ -48,6 +48,9 @@ FFmpegCapturer::FFmpegCapturer(char *video_path) : m_video_path(video_path) {
     video_codec_ctx = avcodec_alloc_context3(video_codec);
     audio_codec_ctx = avcodec_alloc_context3(audio_codec);
 
+    width = video_codec_ctx->width;
+    height = video_codec_ctx->height;
+
     avcodec_parameters_to_context(video_codec_ctx, video_codec_par);
     avcodec_parameters_to_context(audio_codec_ctx, audio_codec_par);
 

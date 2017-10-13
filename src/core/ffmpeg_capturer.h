@@ -38,6 +38,7 @@ private:
 private:
     double video_time_base;
     double video_frame_rate;
+    int width, height;
 
 private:
     char *m_video_path;
@@ -56,7 +57,6 @@ private:
     SwrContext *swr_ctx;
 
     uint8_t *rgb_frame_buffer;
-    BYTE *frame_buffer;
 
 
     int rgb_picture_size;
@@ -69,13 +69,22 @@ private:
     AVSampleFormat out_audio_sample_fmt = AV_SAMPLE_FMT_S16;
     int out_audio_length;
 
+
 public:
-    int getSamplerate(){
+    int getSamplerate() {
         return out_audio_samplerate;
     }
 
-    int getChannels(){
+    int getChannels() {
         return out_audio_channels;
+    }
+
+    int getWidth() {
+        return width;
+    }
+
+    int getHeight() {
+        return height;
     }
 
 };

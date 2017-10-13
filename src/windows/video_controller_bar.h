@@ -17,7 +17,7 @@ public:
     ~VideoControllerBar();
 
 private:
-    Ui::Form *ui;
+    Ui::videoController *ui;
 };
 
 
