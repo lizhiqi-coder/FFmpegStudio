@@ -18,13 +18,20 @@ class Context;
  */
 class State {
 public:
-    virtual void doWork(Context *context);
+    virtual void doWork(Context *context)=0;
+
+    virtual void doChangeState(Context *context)=0;
+
+protected:
+    bool changeState(Context *context, State *state);
+
 };
 
 class Context {
+
 public:
     Context(State *state) {
-
+        m_state = state;
     }
 
     ~Context() {
@@ -32,13 +39,11 @@ public:
     }
 
 public:
-    void doWork() {
-        m_state->doWork(this);
-    }
+    void doWork();
 
-    void setState(State *state) {
-        m_state = state;
-    }
+    void doChangeState();
+
+    void changeState(State *state);
 
 private:
     State *m_state;
@@ -50,32 +55,49 @@ private:
 
 class IdleState : public State {
 public:
-    void doWork(Context *context) override;
+    virtual void doWork(Context *context);
+
+    virtual void doChangeState(Context *context);
 };
 
 class InitializedState : public State {
 public:
-    void doWork(Context *context) override;
+    virtual void doWork(Context *context);
+
+    virtual void doChangeState(Context *context);
+
 };
 
 class PreparedState : public State {
 public:
-    void doWork(Context *context) override;
+    virtual void doWork(Context *context);
+
+    virtual void doChangeState(Context *context);
+
 };
 
 class StartedState : public State {
 public:
-    void doWork(Context *context) override;
+    virtual void doWork(Context *context);
+
+    virtual void doChangeState(Context *context);
+
 };
 
 class PausedState : public State {
 public:
-    void doWork(Context *context) override;
+    virtual void doWork(Context *context);
+
+    virtual void doChangeState(Context *context);
+
 };
 
 class StoppedState : public State {
 public:
-    void doWork(Context *context) override;
+    virtual void doWork(Context *context);
+
+    virtual void doChangeState(Context *context);
+
 };
 
 
