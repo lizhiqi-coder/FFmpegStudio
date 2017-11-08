@@ -23,8 +23,12 @@ void Context::doChangeState() {
     m_state->doChangeState(this);
 }
 
-State* Context::getState() {
+State *Context::getState() {
     return m_state;
+}
+
+IStateChangeAction *Context::getAction() {
+    return m_action;
 }
 
 /**
@@ -41,21 +45,21 @@ void StartedState::doChangeState(Context *context) {
     int i;
     switch (i) {
         case 0:
-            stop();
+            context->getAction()->stop();
             changeState(context, new StoppedState);
             break;
         case 1:
-            pause();
+            context->getAction()->pause();
             changeState(context, new PausedState);
             break;
         case 2:
-            seekTo();
+            context->getAction()->seekTo();
             changeState(context, new StartedState);
             break;
         case 3:
             break;
         default:
-            start();
+            context->getAction()->start();
             changeState(context, new StartedState);
             break;
     }

@@ -70,6 +70,7 @@ namespace Streamer {
 
         State *getState();
 
+        IStateChangeAction *getAction();
 
     private:
         State *m_state;
@@ -109,14 +110,6 @@ namespace Streamer {
 
         virtual void doChangeState(Context *context);
 
-    public:
-        void start();
-
-        void seekTo();
-
-        void stop();
-
-        void pause();
     };
 
     class PausedState : public State {
@@ -136,6 +129,9 @@ namespace Streamer {
     };
 
 
+    /**
+     * 推流器实现
+     */
     class VideoStreamer : public IStateChangeAction {
 
     };
