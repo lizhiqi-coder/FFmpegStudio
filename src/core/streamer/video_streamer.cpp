@@ -23,6 +23,10 @@ void Context::doChangeState() {
     m_state->doChangeState(this);
 }
 
+State* Context::getState() {
+    return m_state;
+}
+
 /**
  * 构建状态机
  * @param context
@@ -33,21 +37,26 @@ void PausedState::doChangeState(Context *context) {
 }
 
 void StartedState::doChangeState(Context *context) {
-    doWork(context);
+//    doWork(context);
     int i;
     switch (i) {
         case 0:
+            stop();
             changeState(context, new StoppedState);
             break;
         case 1:
-            changeState(context, new PausedState());
+            pause();
+            changeState(context, new PausedState);
             break;
         case 2:
+            seekTo();
+            changeState(context, new StartedState);
             break;
         case 3:
             break;
         default:
-            changeState(context, new StartedState());
+            start();
+            changeState(context, new StartedState);
             break;
     }
 }

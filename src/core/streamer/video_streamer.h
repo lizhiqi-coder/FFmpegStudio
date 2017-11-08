@@ -46,6 +46,8 @@ namespace Streamer {
 
         void changeState(State *state);
 
+        State *getState();
+
     private:
         State *m_state;
     };
@@ -83,6 +85,14 @@ namespace Streamer {
 
         virtual void doChangeState(Context *context);
 
+    public:
+        void start();
+
+        void seekTo();
+
+        void stop();
+
+        void pause();
     };
 
     class PausedState : public State {
