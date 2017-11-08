@@ -71,7 +71,8 @@ int main(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
     using namespace Streamer;
     State *start_state = new IdleState;
-    Context *ctx = new Context(start_state);
+    auto streamer = new VideoStreamer();
+    Context *ctx = new Context(start_state, streamer);
     ctx->doChangeState();
     ctx->doChangeState();
     ctx->doChangeState();

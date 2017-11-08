@@ -28,11 +28,33 @@ namespace Streamer {
 
     };
 
+    class IStateChangeAction {
+
+    public:
+        virtual void setDataSource(char *path)=0;
+
+        virtual void prepare()=0;
+
+        virtual void seekTo()=0;
+
+        virtual void start()=0;
+
+        virtual void pause()=0;
+
+        virtual void stop()=0;
+
+        virtual void reset()=0;
+
+        virtual void release()=0;
+
+    };
+
     class Context {
 
     public:
-        Context(State *state) {
+        Context(State *state, IStateChangeAction *action) {
             m_state = state;
+            m_action = action;
         }
 
         ~Context() {
@@ -48,8 +70,10 @@ namespace Streamer {
 
         State *getState();
 
+
     private:
         State *m_state;
+        IStateChangeAction *m_action;
     };
 
 /**
@@ -112,18 +136,7 @@ namespace Streamer {
     };
 
 
-    class VideoStreamer {
-    public:
-        VideoStreamer(char *path);
-
-        void setOutput(char *path);
-
-        void prepare();
-
-        void start();
-
-
-    public:
+    class VideoStreamer : public IStateChangeAction {
 
     };
 }
