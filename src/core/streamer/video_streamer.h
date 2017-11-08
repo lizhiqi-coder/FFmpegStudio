@@ -11,111 +11,112 @@ extern "C" {
 };
 #define FFMPEGSTUDIO_VIDEO_STREAMER_H
 
-class Context;
+namespace Streamer {
+    class Context;
 
 /**
  * interface
  */
-class State {
-public:
-    virtual void doWork(Context *context)=0;
+    class State {
+    public:
+        virtual void doWork(Context *context)=0;
 
-    virtual void doChangeState(Context *context)=0;
+        virtual void doChangeState(Context *context)=0;
 
-protected:
-    bool changeState(Context *context, State *state);
+    protected:
+        bool changeState(Context *context, State *state);
 
-};
+    };
 
-class Context {
+    class Context {
 
-public:
-    Context(State *state) {
-        m_state = state;
-    }
+    public:
+        Context(State *state) {
+            m_state = state;
+        }
 
-    ~Context() {
-        delete m_state;
-    }
+        ~Context() {
+            delete m_state;
+        }
 
-public:
-    void doWork();
+    public:
+        void doWork();
 
-    void doChangeState();
+        void doChangeState();
 
-    void changeState(State *state);
+        void changeState(State *state);
 
-private:
-    State *m_state;
-};
+    private:
+        State *m_state;
+    };
 
 /**
  * 状态实现
  */
 
-class IdleState : public State {
-public:
-    virtual void doWork(Context *context);
+    class IdleState : public State {
+    public:
+        virtual void doWork(Context *context);
 
-    virtual void doChangeState(Context *context);
-};
+        virtual void doChangeState(Context *context);
+    };
 
-class InitializedState : public State {
-public:
-    virtual void doWork(Context *context);
+    class InitializedState : public State {
+    public:
+        virtual void doWork(Context *context);
 
-    virtual void doChangeState(Context *context);
+        virtual void doChangeState(Context *context);
 
-};
+    };
 
-class PreparedState : public State {
-public:
-    virtual void doWork(Context *context);
+    class PreparedState : public State {
+    public:
+        virtual void doWork(Context *context);
 
-    virtual void doChangeState(Context *context);
+        virtual void doChangeState(Context *context);
 
-};
+    };
 
-class StartedState : public State {
-public:
-    virtual void doWork(Context *context);
+    class StartedState : public State {
+    public:
+        virtual void doWork(Context *context);
 
-    virtual void doChangeState(Context *context);
+        virtual void doChangeState(Context *context);
 
-};
+    };
 
-class PausedState : public State {
-public:
-    virtual void doWork(Context *context);
+    class PausedState : public State {
+    public:
+        virtual void doWork(Context *context);
 
-    virtual void doChangeState(Context *context);
+        virtual void doChangeState(Context *context);
 
-};
+    };
 
-class StoppedState : public State {
-public:
-    virtual void doWork(Context *context);
+    class StoppedState : public State {
+    public:
+        virtual void doWork(Context *context);
 
-    virtual void doChangeState(Context *context);
+        virtual void doChangeState(Context *context);
 
-};
-
-
-class VideoStreamer {
-public:
-    VideoStreamer(char *path);
-
-    void setOutput(char *path);
-
-    void prepare();
-
-    void start();
+    };
 
 
-public:
+    class VideoStreamer {
+    public:
+        VideoStreamer(char *path);
+
+        void setOutput(char *path);
+
+        void prepare();
+
+        void start();
 
 
-};
+    public:
+
+    };
+}
 
 
 #endif //FFMPEGSTUDIO_VIDEO_STREAMER_H

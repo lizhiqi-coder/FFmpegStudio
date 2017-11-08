@@ -4,6 +4,8 @@
 
 #include "video_streamer.h"
 
+using namespace Streamer;
+
 bool State::changeState(Context *context, State *state) {
     context->changeState(state);
     return true;

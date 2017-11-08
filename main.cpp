@@ -54,12 +54,30 @@ int main(int argc, char *argv[]) {
 
 
     QApplication a(argc, argv);
-    auto player = new VideoPlayer("C:\\Users\\58boy\\Desktop\\daoxiang.mp4");
+    auto player = new VideoPlayer("C:\\Users\\58boy\\Desktop\\Billie Jean.mp4");
     player->setGeometry(100, 100, 450, 350);
     player->show();
     player->play();
 
     return a.exec();
+}
+
+#endif
+
+#ifdef TEST
+
+#include "streamer/video_streamer.h"
+
+int main(int argc, char *argv[]) {
+    using namespace Streamer;
+    State *start_state = new IdleState;
+    Context *ctx = new Context(start_state);
+    ctx->doChangeState();
+    ctx->doChangeState();
+    ctx->doChangeState();
+    ctx->doChangeState();
+    ctx->doChangeState();
+
 }
 
 #endif
