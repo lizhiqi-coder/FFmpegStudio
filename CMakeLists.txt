@@ -14,7 +14,7 @@ set(SOURCE_FILES
         src/core/ffmpeg_capturer.cpp src/core/ffmpeg_capturer.h
         src/core/ffmpeg_frame.h src/core/ffmpeg_frame.cpp
         src/windows/video_controller_bar.h src/windows/video_controller_bar.cpp
-        )
+        src/core/video_streamer.cpp src/core/video_streamer.h)
 
 
 set(BUILD_DIR ${PROJECT_SOURCE_DIR}/../build)
