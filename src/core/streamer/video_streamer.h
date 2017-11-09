@@ -24,14 +24,19 @@ namespace Streamer {
     class State {
 
     public:
-        virtual void doWork(Context *context)=0;
+        virtual void doActiveEvent(Context *context) {}
 
         virtual void doChangeState(Context *context)=0;
 
-        virtual void dispatchEvent(std::function<void()> event);
+        /**
+         * passive event
+         * @param event
+         */
+        virtual bool dispatchEvent(Context *context, Event event);
 
     protected:
-        std::map<Event, State*> m_eventStateMap;
+        std::map<Event, State *> m_eventStateMap;
+
         bool changeState(Context *context, State *state);
 
     };
@@ -70,7 +75,6 @@ namespace Streamer {
         }
 
     public:
-        void doWork();
 
         void doChangeState();
 
@@ -92,6 +96,8 @@ namespace Streamer {
     class StateMachine {
 
     public:
+        void transition(Context *context);
+
         void transition(Context *context, std::function<void()> eventImp);
     };
 
@@ -101,14 +107,12 @@ namespace Streamer {
 
     class IdleState : public State {
     public:
-        virtual void doWork(Context *context);
 
         virtual void doChangeState(Context *context);
     };
 
     class InitializedState : public State {
     public:
-        virtual void doWork(Context *context);
 
         virtual void doChangeState(Context *context);
 
@@ -116,7 +120,6 @@ namespace Streamer {
 
     class PreparedState : public State {
     public:
-        virtual void doWork(Context *context);
 
         virtual void doChangeState(Context *context);
 
@@ -127,17 +130,15 @@ namespace Streamer {
         StartedState(Context *context);
 
     public:
-        virtual void doWork(Context *context);
 
         virtual void doChangeState(Context *context);
 
-        void dispatchEvent(Context*context,Event event);
+        bool dispatchEvent(Context *context, Event event);
 
     };
 
     class PausedState : public State {
     public:
-        virtual void doWork(Context *context);
 
         virtual void doChangeState(Context *context);
 
@@ -145,9 +146,10 @@ namespace Streamer {
 
     class StoppedState : public State {
     public:
-        virtual void doWork(Context *context);
-
         virtual void doChangeState(Context *context);
+    };
+
+    class EndState : public State {
 
     };
 

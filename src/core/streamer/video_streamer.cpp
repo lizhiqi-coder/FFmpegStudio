@@ -11,13 +11,8 @@ bool State::changeState(Context *context, State *state) {
     return true;
 }
 
-
 void Context::changeState(State *state) {
     this->m_state = state;
-}
-
-void Context::doWork() {
-    m_state->doWork(this);
 }
 
 void Context::doChangeState() {
@@ -37,39 +32,47 @@ IStateChangeAction *Context::getAction() {
  * @param context
  */
 void PausedState::doChangeState(Context *context) {
-    doWork(context);
+    doActiveEvent(context);
     changeState(context, new StartedState(context));
 }
 
 void StartedState::doChangeState(Context *context) {
-
+    doActiveEvent(context);
+    changeState(context, new EndState);
 }
 
-void StartedState::dispatchEvent(Context *context, Event event) {
+bool StartedState::dispatchEvent(Context *context, Event event) {
+    if (event == NULL) {
+        return false;
+    }
     auto next = m_eventStateMap[event];
+    if (next == NULL || next == nullptr) {
+        return false;
+    }
     event();
     changeState(context, next);
+    return true;
 }
 
 
 void StoppedState::doChangeState(Context *context) {
-    doWork(context);
+    doActiveEvent(context);
     changeState(context, new PreparedState());
 
 }
 
 void PreparedState::doChangeState(Context *context) {
-    doWork(context);
+    doActiveEvent(context);
     changeState(context, new StartedState(context));
 }
 
 void IdleState::doChangeState(Context *context) {
-    doWork(context);
+    doActiveEvent(context);
     changeState(context, new InitializedState());
 }
 
 void InitializedState::doChangeState(Context *context) {
-    doWork(context);
+    doActiveEvent(context);
     changeState(context, new PreparedState());
 }
 
@@ -77,13 +80,6 @@ void InitializedState::doChangeState(Context *context) {
  * 状态实现
  * @param context
  */
-void PreparedState::doWork(Context *context) {
-
-}
-
-void StartedState::doWork(Context *context) {
-
-}
 
 StartedState::StartedState(Context *context) {
     m_eventStateMap.insert({context->getAction()->stop(), new StoppedState});
@@ -92,26 +88,14 @@ StartedState::StartedState(Context *context) {
     m_eventStateMap.insert({context->getAction()->start(), new StartedState(context)});
 }
 
-void PausedState::doWork(Context *context) {
-
-}
-
-void StoppedState::doWork(Context *context) {
-
-}
-
-void IdleState::doWork(Context *context) {
-    printf("IdleState::doWork\n");
-}
-
-void InitializedState::doWork(Context *context) {
-
-}
-
 void StateMachine::transition(Context *context, Event event) {
     if (event == NULL) {
         context->getState()->doChangeState(context);
     } else {
-        context->getState()->dispatchEvent(event);
+        context->getState()->dispatchEvent(context, event);
     }
+}
+
+void StateMachine::transition(Context *context) {
+    transition(context, NULL);
 }

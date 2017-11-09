@@ -3,7 +3,7 @@
 #include "gl_widget.h"
 #include "src/VideoPlayer.h"
 
-#define NEW
+#define TEST
 
 #ifdef OLD
 int main(int argc, char *argv[]) {
@@ -73,11 +73,9 @@ int main(int argc, char *argv[]) {
     State *start_state = new IdleState;
     auto streamer = new VideoStreamer();
     Context *ctx = new Context(start_state, streamer);
-    ctx->doChangeState();
-    ctx->doChangeState();
-    ctx->doChangeState();
-    ctx->doChangeState();
-    ctx->doChangeState();
+    auto stateMachine = new StateMachine;
+    stateMachine->transition(ctx);
+//    stateMachine->transition(ctx, streamer->start());
 
 }
 
