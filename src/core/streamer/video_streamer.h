@@ -3,14 +3,18 @@
 //
 
 #ifndef FFMPEGSTUDIO_VIDEO_STREAMER_H
+#define FFMPEGSTUDIO_VIDEO_STREAMER_H
 
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 
 };
-#define FFMPEGSTUDIO_VIDEO_STREAMER_H
 
+#include <functional>
+#include <map>
+
+using Event = std::function<void()>;
 namespace Streamer {
     class Context;
 
@@ -18,12 +22,16 @@ namespace Streamer {
  * interface
  */
     class State {
+
     public:
         virtual void doWork(Context *context)=0;
 
         virtual void doChangeState(Context *context)=0;
 
+        virtual void dispatchEvent(std::function<void()> event);
+
     protected:
+        std::map<Event, State*> m_eventStateMap;
         bool changeState(Context *context, State *state);
 
     };
@@ -77,6 +85,16 @@ namespace Streamer {
         IStateChangeAction *m_action;
     };
 
+
+    /**
+     * 状态机，负责调度管理
+     */
+    class StateMachine {
+
+    public:
+        void transition(Context *context, std::function<void()> eventImp);
+    };
+
 /**
  * 状态实现
  */
@@ -106,9 +124,14 @@ namespace Streamer {
 
     class StartedState : public State {
     public:
+        StartedState(Context *context);
+
+    public:
         virtual void doWork(Context *context);
 
         virtual void doChangeState(Context *context);
+
+        void dispatchEvent(Context*context,Event event);
 
     };
 

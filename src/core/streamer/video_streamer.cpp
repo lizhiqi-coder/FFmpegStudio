@@ -11,6 +11,7 @@ bool State::changeState(Context *context, State *state) {
     return true;
 }
 
+
 void Context::changeState(State *state) {
     this->m_state = state;
 }
@@ -37,33 +38,19 @@ IStateChangeAction *Context::getAction() {
  */
 void PausedState::doChangeState(Context *context) {
     doWork(context);
-    changeState(context, new StartedState());
+    changeState(context, new StartedState(context));
 }
 
 void StartedState::doChangeState(Context *context) {
-//    doWork(context);
-    int i;
-    switch (i) {
-        case 0:
-            context->getAction()->stop();
-            changeState(context, new StoppedState);
-            break;
-        case 1:
-            context->getAction()->pause();
-            changeState(context, new PausedState);
-            break;
-        case 2:
-            context->getAction()->seekTo();
-            changeState(context, new StartedState);
-            break;
-        case 3:
-            break;
-        default:
-            context->getAction()->start();
-            changeState(context, new StartedState);
-            break;
-    }
+
 }
+
+void StartedState::dispatchEvent(Context *context, Event event) {
+    auto next = m_eventStateMap[event];
+    event();
+    changeState(context, next);
+}
+
 
 void StoppedState::doChangeState(Context *context) {
     doWork(context);
@@ -73,7 +60,7 @@ void StoppedState::doChangeState(Context *context) {
 
 void PreparedState::doChangeState(Context *context) {
     doWork(context);
-    changeState(context, new StartedState());
+    changeState(context, new StartedState(context));
 }
 
 void IdleState::doChangeState(Context *context) {
@@ -98,6 +85,13 @@ void StartedState::doWork(Context *context) {
 
 }
 
+StartedState::StartedState(Context *context) {
+    m_eventStateMap.insert({context->getAction()->stop(), new StoppedState});
+    m_eventStateMap.insert({context->getAction()->pause(), new PausedState});
+    m_eventStateMap.insert({context->getAction()->seekTo(), new StartedState(context)});
+    m_eventStateMap.insert({context->getAction()->start(), new StartedState(context)});
+}
+
 void PausedState::doWork(Context *context) {
 
 }
@@ -112,4 +106,12 @@ void IdleState::doWork(Context *context) {
 
 void InitializedState::doWork(Context *context) {
 
+}
+
+void StateMachine::transition(Context *context, Event event) {
+    if (event == NULL) {
+        context->getState()->doChangeState(context);
+    } else {
+        context->getState()->dispatchEvent(event);
+    }
 }
