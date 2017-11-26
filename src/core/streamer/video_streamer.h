@@ -158,7 +158,26 @@ namespace Streamer {
      * 推流器实现
      */
     class VideoStreamer : public IStateChangeAction {
+    public:
+        VideoStreamer();
 
+        ~VideoStreamer();
+
+        void setDataSource(char *path) override;
+
+        void prepare() override;
+
+        void seekTo() override;
+
+        void start() override;
+
+        void pause() override;
+
+        void stop() override;
+
+        void reset() override;
+
+        void release() override;
     };
 }
 

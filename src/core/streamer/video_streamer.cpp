@@ -99,3 +99,35 @@ void StateMachine::transition(Context *context, Event event) {
 void StateMachine::transition(Context *context) {
     transition(context, NULL);
 }
+
+void VideoStreamer::setDataSource(char *path) {
+
+}
+
+void VideoStreamer::prepare() {
+
+}
+
+void VideoStreamer::seekTo() {
+
+}
+
+void VideoStreamer::start() {
+
+}
+
+void VideoStreamer::pause() {
+
+}
+
+void VideoStreamer::stop() {
+
+}
+
+void VideoStreamer::reset() {
+
+}
+
+void VideoStreamer::release() {
+
+}

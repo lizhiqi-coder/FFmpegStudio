@@ -36,7 +36,8 @@ SOURCES += main.cpp\
             src/VideoPlayer.cpp\
             src/core/ffmpeg_capturer.cpp\
             src/core/ffmpeg_frame.cpp\
-            src/windows/video_controller_bar.cpp
+            src/windows/video_controller_bar.cpp\
+            src/core/streamer/video_streamer.cpp
 HEADERS  += mainwindow.h \
             src/core/h264_decoder.h \
             src/core/h264_frame.h   \
@@ -45,7 +46,8 @@ HEADERS  += mainwindow.h \
             src/VideoPlayer.h   \
             src/core/ffmpeg_capturer.h\
             src/core/ffmpeg_frame.h\
-            src/windows/video_controller_bar.h
+            src/windows/video_controller_bar.h\
+            src/core/streamer/video_streamer.h
 
 
 
