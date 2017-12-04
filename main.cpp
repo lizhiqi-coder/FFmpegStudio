@@ -3,7 +3,7 @@
 #include "gl_widget.h"
 #include "src/VideoPlayer.h"
 
-#define TEST
+#define NEW
 
 #ifdef OLD
 int main(int argc, char *argv[]) {
